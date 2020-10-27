@@ -1,5 +1,25 @@
-const Home: React.FC = () => {
-  return <div></div>;
+import { Button } from "@material-ui/core";
+import styled from "styled-components";
+
+const Home: React.FC<{ className?: string }> = ({ className }) => {
+  return (
+    <div className={className}>
+      <Button className="centerButton" variant="contained">
+        Button
+      </Button>
+    </div>
+  );
 };
 
-export default Home;
+const StyledHome = styled(Home)`
+  height: 100vh;
+  background-color: black;
+
+  & > .centerButton {
+    width: 200px;
+    height: 200px;
+    margin: 100px 100px;
+  }
+`;
+
+export default StyledHome;
