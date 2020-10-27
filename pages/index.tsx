@@ -1,25 +1,20 @@
-import { Button } from "@material-ui/core";
+import React from "react";
 import styled from "styled-components";
+import { Counter } from "../components/Counter";
 
 const Home: React.FC<{ className?: string }> = ({ className }) => {
   return (
     <div className={className}>
-      <Button className="centerButton" variant="contained">
-        Button
-      </Button>
+      <Counter />
     </div>
   );
 };
 
 const StyledHome = styled(Home)`
   height: 100vh;
-  background-color: black;
-
-  & > .centerButton {
-    width: 200px;
-    height: 200px;
-    margin: 100px 100px;
-  }
+  background-color: ${(props) => {
+    return props.theme.palette.background.default;
+  }};
 `;
 
 export default StyledHome;
