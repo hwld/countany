@@ -14,4 +14,12 @@ export const theme = createMuiTheme({
       light: "#56c497",
     },
   },
+  props: {
+    MuiTypography: {
+      color: "textPrimary",
+    },
+    MuiToolbar: {
+      variant: "dense",
+    },
+  },
 });
