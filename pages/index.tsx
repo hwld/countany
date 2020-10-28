@@ -11,11 +11,16 @@ const Home: React.FC<{ className?: string }> = ({ className }) => {
   const [counters, setCounters] = useState<CounterObj[]>([]);
 
   const addCounter = () => {
-    setCounters((state) => [
-      ...state,
+    setCounters((counters) => [
+      ...counters,
       {
         id: Math.random().toString(),
         title: `新しいカウンター`,
+        value: 0,
+        startWith: 0,
+        countAmount: 1,
+        maxValue: 10,
+        minValue: -10,
       },
     ]);
   };
@@ -24,11 +29,62 @@ const Home: React.FC<{ className?: string }> = ({ className }) => {
     setCounters((state) => [...state.filter((state) => state.id !== id)]);
   };
 
+  const countUp = (id: string) => {
+    setCounters((counters) => {
+      return [
+        ...counters.map((counter) => {
+          if (counter.id === id) {
+            const newCounts = counter.value + counter.countAmount;
+            if (newCounts <= counter.maxValue) {
+              return { ...counter, counts: newCounts };
+            }
+          }
+          return counter;
+        }),
+      ];
+    });
+  };
+
+  const countDown = (id: string) => {
+    setCounters((counters) => {
+      return [
+        ...counters.map((counter) => {
+          if (counter.id === id) {
+            const newCounts = counter.value - counter.countAmount;
+            if (newCounts >= counter.minValue) {
+              return { ...counter, counts: newCounts };
+            }
+          }
+          return counter;
+        }),
+      ];
+    });
+  };
+
+  const resetCount = (id: string) => {
+    setCounters((counters) => {
+      return [
+        ...counters.map((counter) => {
+          if (counter.id === id) {
+            return { ...counter, counts: counter.startWith };
+          }
+          return counter;
+        }),
+      ];
+    });
+  };
+
   return (
     <div className={className}>
       <Header />
       <Main>
-        <CounterContainer counters={counters} removeCounter={removeCounter} />
+        <CounterContainer
+          counters={counters}
+          countUp={countUp}
+          countDown={countDown}
+          resetCount={resetCount}
+          removeCounter={removeCounter}
+        />
       </Main>
       <Fab className="addCounter" color="primary" onClick={addCounter}>
         <AddIcon />

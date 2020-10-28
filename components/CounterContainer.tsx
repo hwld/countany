@@ -6,9 +6,19 @@ type Props = {
   className?: string;
   counters: CounterObj[];
   removeCounter: (id: string) => void;
+  countUp: (id: string) => void;
+  countDown: (id: string) => void;
+  resetCount: (id: string) => void;
 };
 
-const Component: React.FC<Props> = ({ className, counters, removeCounter }) => {
+const Component: React.FC<Props> = ({
+  className,
+  counters,
+  countUp,
+  countDown,
+  resetCount,
+  removeCounter,
+}) => {
   return (
     <div className={className}>
       {counters.map((counter) => (
@@ -16,6 +26,9 @@ const Component: React.FC<Props> = ({ className, counters, removeCounter }) => {
           key={counter.id}
           className="counter"
           counter={counter}
+          countUp={countUp}
+          countDown={countDown}
+          resetCount={resetCount}
           removeCounter={removeCounter}
         ></Counter>
       ))}

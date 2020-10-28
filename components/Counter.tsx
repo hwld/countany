@@ -1,5 +1,5 @@
 import { Button, IconButton, Typography } from "@material-ui/core";
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 import PlusIcon from "@material-ui/icons/Add";
 import MinusIcon from "@material-ui/icons/Remove";
@@ -7,27 +7,43 @@ import ResetIcon from "@material-ui/icons/Refresh";
 import SettingIcon from "@material-ui/icons/Settings";
 import RemoveIcon from "@material-ui/icons/Clear";
 
-export type CounterObj = { id: string; title: string };
+export type CounterObj = {
+  id: string;
+  title: string;
+  value: number;
+  startWith: number;
+  countAmount: number; //変化量
+  maxValue: number; //10桁の表示までサポート
+  minValue: number; //10桁
+};
 
 type Props = {
   className?: string;
   counter: CounterObj;
+  countUp: (id: string) => void;
+  countDown: (id: string) => void;
+  resetCount: (id: string) => void;
   removeCounter: (id: string) => void;
 };
 
-const Component: React.FC<Props> = ({ className, counter, removeCounter }) => {
-  const [count, setCount] = useState(0);
-
-  const plus = () => {
-    setCount((count) => count + 1);
+const Component: React.FC<Props> = ({
+  className,
+  counter,
+  countUp: up,
+  countDown: down,
+  resetCount: reset,
+  removeCounter,
+}) => {
+  const countUp = () => {
+    up(counter.id);
   };
 
-  const minus = () => {
-    setCount((count) => count - 1);
+  const countDown = () => {
+    down(counter.id);
   };
 
-  const reset = () => {
-    setCount(0);
+  const resetCount = () => {
+    reset(counter.id);
   };
 
   const remove = () => {
@@ -42,19 +58,19 @@ const Component: React.FC<Props> = ({ className, counter, removeCounter }) => {
           <RemoveIcon />
         </IconButton>
       </div>
-      <Typography className="count">{count}</Typography>
+      <Typography className="counts">{counter.value}</Typography>
       <div className="counter">
         <Button
-          onClick={plus}
-          className="plus"
+          onClick={countUp}
+          className="countUp"
           variant="contained"
           color="primary"
         >
           <PlusIcon fontSize="large" />
         </Button>
         <Button
-          onClick={minus}
-          className="minus"
+          onClick={countDown}
+          className="countDown"
           variant="contained"
           color="primary"
         >
@@ -62,11 +78,11 @@ const Component: React.FC<Props> = ({ className, counter, removeCounter }) => {
         </Button>
       </div>
       <div className="options">
-        <IconButton onClick={reset} className="reset">
-          <ResetIcon fontSize="large" color="primary" />
+        <IconButton onClick={resetCount} className="reset" color="secondary">
+          <ResetIcon fontSize="large" />
         </IconButton>
-        <IconButton className="setting">
-          <SettingIcon fontSize="large" color="primary" />
+        <IconButton className="setting" color="secondary">
+          <SettingIcon fontSize="large" />
         </IconButton>
       </div>
     </div>
@@ -74,7 +90,7 @@ const Component: React.FC<Props> = ({ className, counter, removeCounter }) => {
 };
 
 const StyledComponent = styled(Component)`
-  width: 300px;
+  width: 310px;
   height: 300px;
   border: solid 2px ${(props) => props.theme.palette.primary.main};
   border-radius: 10px;
@@ -92,17 +108,17 @@ const StyledComponent = styled(Component)`
   & > .head {
     height: 80px;
     display: flex;
-    align-items: center;
+    align-items: start;
     justify-content: space-between;
 
     & > .title {
-      margin: 10px 0 0 10px;
+      margin: 10px 0 0 20px;
       font-size: 20px;
       word-break: break-all;
     }
   }
 
-  & > .count {
+  & > .counts {
     margin-top: 0px;
     font-size: 50px;
     text-align: center;
@@ -116,11 +132,11 @@ const StyledComponent = styled(Component)`
       height: 80px;
     }
 
-    & > .plus {
+    & > .countUp {
       border-radius: 90% 0% 0% 90%;
     }
 
-    & > .minus {
+    & > .countDown {
       border-radius: 0% 90% 90% 0%;
     }
   }
