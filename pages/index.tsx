@@ -19,8 +19,8 @@ const Home: React.FC<{ className?: string }> = ({ className }) => {
         value: 0,
         startWith: 0,
         countAmount: 1,
-        maxValue: 10,
-        minValue: -10,
+        maxValue: 100,
+        minValue: -100,
       },
     ]);
   };
@@ -35,8 +35,9 @@ const Home: React.FC<{ className?: string }> = ({ className }) => {
         ...counters.map((counter) => {
           if (counter.id === id) {
             const newCounts = counter.value + counter.countAmount;
+            console.log(newCounts);
             if (newCounts <= counter.maxValue) {
-              return { ...counter, counts: newCounts };
+              return { ...counter, value: newCounts };
             }
           }
           return counter;
@@ -52,7 +53,7 @@ const Home: React.FC<{ className?: string }> = ({ className }) => {
           if (counter.id === id) {
             const newCounts = counter.value - counter.countAmount;
             if (newCounts >= counter.minValue) {
-              return { ...counter, counts: newCounts };
+              return { ...counter, value: newCounts };
             }
           }
           return counter;
