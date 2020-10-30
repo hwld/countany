@@ -1,11 +1,10 @@
-import { Fab } from "@material-ui/core";
 import React, { useState } from "react";
 import styled from "styled-components";
 import { Header } from "../components/Header";
 import { Main } from "../components/Main";
-import AddIcon from "@material-ui/icons/Add";
 import { CounterContainer } from "../components/CounterContainer";
 import { CounterObj } from "../components/Counter";
+import { AddCounterButton } from "../components/AddCounterButton";
 
 const Home: React.FC<{ className?: string }> = ({ className }) => {
   const [counters, setCounters] = useState<CounterObj[]>([]);
@@ -35,9 +34,9 @@ const Home: React.FC<{ className?: string }> = ({ className }) => {
         ...counters.map((counter) => {
           if (counter.id === id) {
             const newCounts = counter.value + counter.countAmount;
-            console.log(newCounts);
             if (newCounts <= counter.maxValue) {
-              return { ...counter, value: newCounts };
+              const newCounter: CounterObj = { ...counter, value: newCounts };
+              return newCounter;
             }
           }
           return counter;
@@ -53,7 +52,8 @@ const Home: React.FC<{ className?: string }> = ({ className }) => {
           if (counter.id === id) {
             const newCounts = counter.value - counter.countAmount;
             if (newCounts >= counter.minValue) {
-              return { ...counter, value: newCounts };
+              const newCounter: CounterObj = { ...counter, value: newCounts };
+              return newCounter;
             }
           }
           return counter;
@@ -67,7 +67,11 @@ const Home: React.FC<{ className?: string }> = ({ className }) => {
       return [
         ...counters.map((counter) => {
           if (counter.id === id) {
-            return { ...counter, counts: counter.startWith };
+            const newCounter: CounterObj = {
+              ...counter,
+              value: counter.startWith,
+            };
+            return newCounter;
           }
           return counter;
         }),
@@ -87,9 +91,7 @@ const Home: React.FC<{ className?: string }> = ({ className }) => {
           removeCounter={removeCounter}
         />
       </Main>
-      <Fab className="addCounter" color="primary" onClick={addCounter}>
-        <AddIcon />
-      </Fab>
+      <AddCounterButton addCounter={addCounter} className="addCounter" />
     </div>
   );
 };
