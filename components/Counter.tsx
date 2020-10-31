@@ -7,16 +7,21 @@ import ResetIcon from "@material-ui/icons/Refresh";
 import SettingIcon from "@material-ui/icons/Settings";
 import RemoveIcon from "@material-ui/icons/Clear";
 
-export type CounterObj = {
-  // マイナス記号を入れて10桁までの表示をサポートしている.
-  id: string;
+// 変更可能なフィールド
+export type CounterFields = {
   name: string;
-  value: number;
   startWith: number;
-  countAmount: number; //変化量
+  amount: number; //変化量
   maxValue: number; //10桁の表示までサポート
   minValue: number; //10桁
 };
+export type CounterObj = {
+  // マイナス記号を入れて10桁までの表示をサポートしている.
+  id: string;
+  value: number;
+} & CounterFields;
+
+export const counterMaxLength = 10;
 
 type Props = {
   className?: string;
@@ -91,7 +96,7 @@ const Component: React.FC<Props> = ({
 };
 
 const StyledComponent = styled(Component)`
-  width: 310px;
+  width: 300px;
   height: 300px;
   border: solid 2px ${(props) => props.theme.palette.primary.main};
   border-radius: 10px;

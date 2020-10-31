@@ -10,13 +10,14 @@ import {
 import AddIcon from "@material-ui/icons/Add";
 import { CounterSettingForm } from "./CounterSettingForm";
 import { SlideTransition } from "./SlideTransition";
+import { CounterFields } from "./Counter";
 
 type Props = {
   className?: string;
-  addCounter: () => void;
+  addCounter: (fields: CounterFields) => void;
 };
 
-const Component: React.FC<Props> = ({ className, addCounter: add }) => {
+const Component: React.FC<Props> = ({ className, addCounter }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const open = () => {
@@ -27,8 +28,9 @@ const Component: React.FC<Props> = ({ className, addCounter: add }) => {
     setIsOpen(false);
   };
 
-  const addCounter = () => {
-    add();
+  const handleSubmit = (fields: CounterFields) => {
+    console.log(fields);
+    addCounter(fields);
     setIsOpen(false);
   };
 
@@ -45,7 +47,7 @@ const Component: React.FC<Props> = ({ className, addCounter: add }) => {
       >
         <DialogTitle>カウンターの追加</DialogTitle>
         <DialogContent>
-          <CounterSettingForm id="addCounter" />
+          <CounterSettingForm id="addCounter" onSubmit={handleSubmit} />
         </DialogContent>
         <DialogActions>
           <Button onClick={close} variant="contained" color="primary">
@@ -54,7 +56,6 @@ const Component: React.FC<Props> = ({ className, addCounter: add }) => {
           <Button
             form="addCounter"
             type="submit"
-            onClick={addCounter}
             variant="contained"
             color="primary"
           >

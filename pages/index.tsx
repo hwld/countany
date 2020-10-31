@@ -3,14 +3,14 @@ import styled from "styled-components";
 import { Header } from "../components/Header";
 import { Main } from "../components/Main";
 import { CounterContainer } from "../components/CounterContainer";
-import { CounterObj } from "../components/Counter";
+import { CounterFields, CounterObj } from "../components/Counter";
 
 import { AddCounterButton } from "../components/AddCounterButton";
 
 const Home: React.FC<{ className?: string }> = ({ className }) => {
   const [counters, setCounters] = useState<CounterObj[]>([]);
 
-  const addCounter = () => {
+  const addCounter = (fields: CounterFields) => {
     setCounters((counters) => [
       ...counters,
       {
@@ -18,7 +18,7 @@ const Home: React.FC<{ className?: string }> = ({ className }) => {
         name: `新しいカウンター`,
         value: 0,
         startWith: 0,
-        countAmount: 1,
+        amount: 1,
         maxValue: 100,
         minValue: -100,
       },
@@ -34,7 +34,7 @@ const Home: React.FC<{ className?: string }> = ({ className }) => {
       return [
         ...counters.map((counter) => {
           if (counter.id === id) {
-            const newCounts = counter.value + counter.countAmount;
+            const newCounts = counter.value + counter.amount;
             if (newCounts <= counter.maxValue) {
               const newCounter: CounterObj = { ...counter, value: newCounts };
               return newCounter;
@@ -51,7 +51,7 @@ const Home: React.FC<{ className?: string }> = ({ className }) => {
       return [
         ...counters.map((counter) => {
           if (counter.id === id) {
-            const newCounts = counter.value - counter.countAmount;
+            const newCounts = counter.value - counter.amount;
             if (newCounts >= counter.minValue) {
               const newCounter: CounterObj = { ...counter, value: newCounts };
               return newCounter;
