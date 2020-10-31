@@ -8,8 +8,9 @@ import SettingIcon from "@material-ui/icons/Settings";
 import RemoveIcon from "@material-ui/icons/Clear";
 
 export type CounterObj = {
+  // マイナス記号を入れて10桁までの表示をサポートしている.
   id: string;
-  title: string;
+  name: string;
   value: number;
   startWith: number;
   countAmount: number; //変化量
@@ -53,7 +54,7 @@ const Component: React.FC<Props> = ({
   return (
     <div className={className}>
       <div className="head">
-        <Typography className="title">{counter.title}</Typography>
+        <Typography className="title">{counter.name}</Typography>
         <IconButton onClick={remove} className="remove" color="secondary">
           <RemoveIcon />
         </IconButton>

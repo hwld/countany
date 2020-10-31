@@ -4,6 +4,7 @@ import { Header } from "../components/Header";
 import { Main } from "../components/Main";
 import { CounterContainer } from "../components/CounterContainer";
 import { CounterObj } from "../components/Counter";
+
 import { AddCounterButton } from "../components/AddCounterButton";
 
 const Home: React.FC<{ className?: string }> = ({ className }) => {
@@ -14,7 +15,7 @@ const Home: React.FC<{ className?: string }> = ({ className }) => {
       ...counters,
       {
         id: Math.random().toString(),
-        title: `新しいカウンター`,
+        name: `新しいカウンター`,
         value: 0,
         startWith: 0,
         countAmount: 1,
