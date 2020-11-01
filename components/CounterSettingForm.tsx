@@ -17,7 +17,7 @@ const Component: React.FC<Props> = ({
   counter,
   onSubmit: submit = () => {},
 }) => {
-  const { register, errors, handleSubmit, getValues } = useForm<
+  const { register, errors, handleSubmit, getValues, clearErrors } = useForm<
     CounterFields
   >();
 
@@ -41,7 +41,7 @@ const Component: React.FC<Props> = ({
 
   const counterPatternRule = {
     value: new RegExp(`^(\\+|-){0,1}\\d{1,${counterMaxLength}}$`),
-    message: `記号を含めないで${counterMaxLength}桁以内の数字で入力してください`,
+    message: `${counterMaxLength}桁以内の数字で入力してください`,
   };
 
   return (
@@ -64,36 +64,52 @@ const Component: React.FC<Props> = ({
         name={name}
         error={errors.name ? true : false}
       />
-      <Typography className="errorText">{errors.name?.message}</Typography>
+      <div className="errorField">
+        <Typography className="errorText">{errors.name?.message}</Typography>
+      </div>
       <TextField
         className="formField"
         label="初期値"
         variant="filled"
         color="secondary"
         defaultValue={counter?.startWith || 0}
+        inputProps={{ autoComplete: "off" }}
         inputRef={register({
           required: "初期値を入力してください",
           pattern: counterPatternRule,
+          // 最小値 <= 初期値 <= 最大値
           validate: (value) => {
             const start = Number(value);
             const max = Number(getValues(maxValue));
             const min = Number(getValues(minValue));
-            return (
-              (start <= max && start >= min) ||
-              "最大値以下で最小値以上の値を設定してください"
-            );
+
+            if (start <= max && start >= min) {
+              if (errors.maxValue?.type === "validate") {
+                clearErrors(maxValue);
+              }
+              if (errors.minValue?.type === "validate") {
+                clearErrors(minValue);
+              }
+              return true;
+            }
+            return false;
           },
         })}
         name={startWith}
         error={errors.startWith ? true : false}
       />
-      <Typography className="errorText">{errors.startWith?.message}</Typography>
+      <div className="errorField">
+        <Typography className="errorText">
+          {errors.startWith?.message}
+        </Typography>
+      </div>
       <TextField
         className="formField"
         label="増減量"
         variant="filled"
         color="secondary"
         defaultValue={counter?.amount || 1}
+        inputProps={{ autoComplete: "off" }}
         inputRef={register({
           required: "増減量を入力してください",
           pattern: counterPatternRule,
@@ -101,53 +117,87 @@ const Component: React.FC<Props> = ({
         name={amount}
         error={errors.amount ? true : false}
       />
-      <Typography className="errorText">{errors.amount?.message}</Typography>
+      <div className="errorField">
+        <Typography className="errorText">{errors.amount?.message}</Typography>
+      </div>
       <TextField
         className="formField"
         label="最大値"
         variant="filled"
         color="secondary"
         defaultValue={counter?.maxValue || 9999999999}
+        inputProps={{ autoComplete: "off" }}
         inputRef={register({
           required: "最大値を入力してください",
           pattern: counterPatternRule,
+          // 最小値 <= 初期値 <= 最大値
           validate: (value) => {
             const start = Number(getValues(startWith));
             const max = Number(value);
             const min = Number(getValues(minValue));
-            return (
-              (max >= start && max > min) ||
-              "初期値以上で最小値より大きい値を入力してください"
-            );
+            if (max >= start && max > min) {
+              if (errors.startWith?.type === "validate") {
+                clearErrors(startWith);
+              }
+              if (errors.minValue?.type === "validate") {
+                clearErrors(minValue);
+              }
+              return true;
+            }
+            return false;
           },
         })}
         name={maxValue}
         error={errors.maxValue ? true : false}
       />
-      <Typography className="errorText">{errors.maxValue?.message}</Typography>
+      <div className="errorField">
+        <Typography className="errorText">
+          {errors.maxValue?.message}
+        </Typography>
+      </div>
       <TextField
         className="formField"
         label="最小値"
         variant="filled"
         color="secondary"
         defaultValue={counter?.minValue || -9999999999}
+        inputProps={{ autoComplete: "off" }}
         inputRef={register({
           required: "最小値を入力してください",
           pattern: counterPatternRule,
+          // 最小値 <= 初期値 <= 最大値
           validate: (value) => {
             const start = Number(getValues(startWith));
             const max = Number(getValues(maxValue));
             const min = Number(value);
-            return (
-              (min <= start && min < max) ||
-              "初期値以下で最大値より小さい値を入力してください"
-            );
+            if (min <= start && min < max) {
+              if (errors.startWith?.type === "validate") {
+                clearErrors(startWith);
+              }
+              if (errors.maxValue?.type === "validate") {
+                clearErrors(maxValue);
+              }
+              return true;
+            }
+            return false;
           },
         })}
         name={minValue}
         error={errors.minValue ? true : false}
       />
-      <Typography className="errorText">{errors.minValue?.message}</Typography>
+      <div className="errorField">
+        <Typography className="errorText">
+          {errors.minValue?.message}
+        </Typography>
+      </div>
+      <div className="optionErrorField">
+        <Typography className="errorText">
+          {(errors.startWith?.type === "validate" ||
+            errors.maxValue?.type === "validate" ||
+            errors.minValue?.type === "validate") &&
+            "最小値 <= 初期値 <= 最大値 になるように入力してください"}
+        </Typography>
+      </div>
     </form>
   );
 };
@@ -160,9 +210,25 @@ const StyledComponent = styled(Component)`
     margin-top: 5%;
   }
 
-  & > .errorText {
-    font-size: 0.8rem;
-    color: ${(props) => props.theme.palette.error.main};
+  & > .errorField {
+    height: 1.1rem;
+    & > .errorText {
+      font-size: 0.9rem;
+      color: ${(props) => props.theme.palette.error.main};
+    }
+  }
+
+  & > .optionErrorField {
+    margin-top: 2%;
+    height: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    & > .errorText {
+      font-size: 1rem;
+      color: ${(props) => props.theme.palette.error.main};
+    }
   }
 
   & input[type="number"]::-webkit-inner-spin-button,
