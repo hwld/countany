@@ -103,14 +103,14 @@ const Home: React.FC<{ className?: string }> = ({ className }) => {
       <Main>
         <CounterContainer
           counters={counters}
-          editCounter={editCounter}
-          removeCounter={removeCounter}
-          countUp={countUp}
-          countDown={countDown}
-          resetCount={resetCount}
+          onEditCounter={editCounter}
+          onRemoveCounter={removeCounter}
+          onCountUp={countUp}
+          onCountDown={countDown}
+          onResetCount={resetCount}
         />
       </Main>
-      <AddCounterButton addCounter={addCounter} className="addCounter" />
+      <AddCounterButton onAddCounter={addCounter} className="addCounter" />
     </div>
   );
 };

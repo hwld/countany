@@ -5,21 +5,21 @@ import { Counter, CounterFields, CounterObj } from "./Counter";
 type Props = {
   className?: string;
   counters: CounterObj[];
-  editCounter: (id: string, fields: CounterFields) => void;
-  removeCounter: (id: string) => void;
-  countUp: (id: string) => void;
-  countDown: (id: string) => void;
-  resetCount: (id: string) => void;
+  onEditCounter: (id: string, fields: CounterFields) => void;
+  onRemoveCounter: (id: string) => void;
+  onCountUp: (id: string) => void;
+  onCountDown: (id: string) => void;
+  onResetCount: (id: string) => void;
 };
 
 const Component: React.FC<Props> = ({
   className,
   counters,
-  editCounter,
-  removeCounter,
-  countUp,
-  countDown,
-  resetCount,
+  onEditCounter,
+  onRemoveCounter,
+  onCountUp,
+  onCountDown,
+  onResetCount,
 }) => {
   return (
     <div className={className}>
@@ -28,11 +28,11 @@ const Component: React.FC<Props> = ({
           key={counter.id}
           className="counter"
           counter={counter}
-          editCounter={editCounter}
-          removeCounter={removeCounter}
-          countUp={countUp}
-          countDown={countDown}
-          resetCount={resetCount}
+          onEditCounter={onEditCounter}
+          onRemoveCounter={onRemoveCounter}
+          onCountUp={onCountUp}
+          onCountDown={onCountDown}
+          onResetCount={onResetCount}
         ></Counter>
       ))}
     </div>

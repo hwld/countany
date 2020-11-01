@@ -14,10 +14,10 @@ import { CounterFields } from "./Counter";
 
 type Props = {
   className?: string;
-  addCounter: (fields: CounterFields) => void;
+  onAddCounter: (fields: CounterFields) => void;
 };
 
-const Component: React.FC<Props> = ({ className, addCounter }) => {
+const Component: React.FC<Props> = ({ className, onAddCounter }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const open = () => {
@@ -29,7 +29,7 @@ const Component: React.FC<Props> = ({ className, addCounter }) => {
   };
 
   const handleSubmit = (fields: CounterFields) => {
-    addCounter(fields);
+    onAddCounter(fields);
     setIsOpen(false);
   };
 

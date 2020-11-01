@@ -26,40 +26,40 @@ export const counterMaxLength = 10;
 type Props = {
   className?: string;
   counter: CounterObj;
-  editCounter: (id: string, fields: CounterFields) => void;
-  removeCounter: (id: string) => void;
-  countUp: (id: string) => void;
-  countDown: (id: string) => void;
-  resetCount: (id: string) => void;
+  onEditCounter: (id: string, fields: CounterFields) => void;
+  onRemoveCounter: (id: string) => void;
+  onCountUp: (id: string) => void;
+  onCountDown: (id: string) => void;
+  onResetCount: (id: string) => void;
 };
 
 const Component: React.FC<Props> = ({
   className,
   counter,
-  editCounter: edit,
-  removeCounter: remove,
-  countUp: up,
-  countDown: down,
-  resetCount: reset,
+  onEditCounter,
+  onRemoveCounter,
+  onCountUp,
+  onCountDown,
+  onResetCount,
 }) => {
   const countUp = () => {
-    up(counter.id);
+    onCountUp(counter.id);
   };
 
   const countDown = () => {
-    down(counter.id);
+    onCountDown(counter.id);
   };
 
   const resetCount = () => {
-    reset(counter.id);
+    onResetCount(counter.id);
   };
 
   const removeCounter = () => {
-    remove(counter.id);
+    onRemoveCounter(counter.id);
   };
 
   const editCounter = (fields: CounterFields) => {
-    edit(counter.id, fields);
+    onEditCounter(counter.id, fields);
   };
 
   return (
