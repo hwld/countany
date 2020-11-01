@@ -1,10 +1,11 @@
 import React from "react";
 import styled from "styled-components";
-import { Counter, CounterObj } from "./Counter";
+import { Counter, CounterFields, CounterObj } from "./Counter";
 
 type Props = {
   className?: string;
   counters: CounterObj[];
+  editCounter: (id: string, fields: CounterFields) => void;
   removeCounter: (id: string) => void;
   countUp: (id: string) => void;
   countDown: (id: string) => void;
@@ -14,10 +15,11 @@ type Props = {
 const Component: React.FC<Props> = ({
   className,
   counters,
+  editCounter,
+  removeCounter,
   countUp,
   countDown,
   resetCount,
-  removeCounter,
 }) => {
   return (
     <div className={className}>
@@ -26,10 +28,11 @@ const Component: React.FC<Props> = ({
           key={counter.id}
           className="counter"
           counter={counter}
+          editCounter={editCounter}
+          removeCounter={removeCounter}
           countUp={countUp}
           countDown={countDown}
           resetCount={resetCount}
-          removeCounter={removeCounter}
         ></Counter>
       ))}
     </div>

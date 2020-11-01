@@ -1,23 +1,24 @@
 import React, { useState } from "react";
+import SettingIcon from "@material-ui/icons/Settings";
 import {
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  Fab,
+  IconButton,
 } from "@material-ui/core";
-import AddIcon from "@material-ui/icons/Add";
 import { CounterSettingForm } from "./CounterSettingForm";
 import { SlideTransition } from "./SlideTransition";
-import { CounterFields } from "./Counter";
+import { CounterFields, CounterObj } from "./Counter";
 
 type Props = {
   className?: string;
-  addCounter: (fields: CounterFields) => void;
+  counter: CounterObj;
+  editCounter: (fields: CounterFields) => void;
 };
 
-const Component: React.FC<Props> = ({ className, addCounter }) => {
+const Componet: React.FC<Props> = ({ className, counter, editCounter }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const open = () => {
@@ -29,29 +30,33 @@ const Component: React.FC<Props> = ({ className, addCounter }) => {
   };
 
   const handleSubmit = (fields: CounterFields) => {
-    addCounter(fields);
+    editCounter(fields);
     setIsOpen(false);
   };
 
   return (
     <>
-      <Fab color="primary" onClick={open} className={className}>
-        <AddIcon />
-      </Fab>
+      <IconButton onClick={open} className={className} color="secondary">
+        <SettingIcon />
+      </IconButton>
       <Dialog
         open={isOpen}
         onClose={close}
         TransitionComponent={SlideTransition}
         fullWidth
       >
-        <DialogTitle>カウンターの追加</DialogTitle>
+        <DialogTitle>カウンターの編集</DialogTitle>
         <DialogContent>
-          <CounterSettingForm id="addCounter" onSubmit={handleSubmit} />
+          <CounterSettingForm
+            id="editCounter"
+            counter={counter}
+            onSubmit={handleSubmit}
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={close}>中止</Button>
-          <Button form="addCounter" type="submit">
-            追加
+          <Button form="editCounter" type="submit">
+            完了
           </Button>
         </DialogActions>
       </Dialog>
@@ -59,4 +64,4 @@ const Component: React.FC<Props> = ({ className, addCounter }) => {
   );
 };
 
-export const AddCounterButton = Component;
+export const EditCounterButton = Componet;

@@ -21,5 +21,9 @@ export const theme = createMuiTheme({
     MuiToolbar: {
       variant: "dense",
     },
+    MuiButton: {
+      variant: "contained",
+      color: "primary",
+    },
   },
 });

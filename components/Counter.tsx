@@ -4,8 +4,8 @@ import styled from "styled-components";
 import PlusIcon from "@material-ui/icons/Add";
 import MinusIcon from "@material-ui/icons/Remove";
 import ResetIcon from "@material-ui/icons/Refresh";
-import SettingIcon from "@material-ui/icons/Settings";
 import RemoveIcon from "@material-ui/icons/Clear";
+import { EditCounterButton } from "./EditCounterButton";
 
 // 変更可能なフィールド
 export type CounterFields = {
@@ -26,19 +26,21 @@ export const counterMaxLength = 10;
 type Props = {
   className?: string;
   counter: CounterObj;
+  editCounter: (id: string, fields: CounterFields) => void;
+  removeCounter: (id: string) => void;
   countUp: (id: string) => void;
   countDown: (id: string) => void;
   resetCount: (id: string) => void;
-  removeCounter: (id: string) => void;
 };
 
 const Component: React.FC<Props> = ({
   className,
   counter,
+  editCounter: edit,
+  removeCounter: remove,
   countUp: up,
   countDown: down,
   resetCount: reset,
-  removeCounter,
 }) => {
   const countUp = () => {
     up(counter.id);
@@ -52,44 +54,40 @@ const Component: React.FC<Props> = ({
     reset(counter.id);
   };
 
-  const remove = () => {
-    removeCounter(counter.id);
+  const removeCounter = () => {
+    remove(counter.id);
+  };
+
+  const editCounter = (fields: CounterFields) => {
+    edit(counter.id, fields);
   };
 
   return (
     <div className={className}>
       <div className="head">
         <Typography className="title">{counter.name}</Typography>
-        <IconButton onClick={remove} className="remove" color="secondary">
+        <IconButton
+          onClick={removeCounter}
+          className="remove"
+          color="secondary"
+        >
           <RemoveIcon />
         </IconButton>
       </div>
       <Typography className="counts">{counter.value}</Typography>
       <div className="counter">
-        <Button
-          onClick={countUp}
-          className="countUp"
-          variant="contained"
-          color="primary"
-        >
+        <Button onClick={countUp} className="countUp">
           <PlusIcon fontSize="large" />
         </Button>
-        <Button
-          onClick={countDown}
-          className="countDown"
-          variant="contained"
-          color="primary"
-        >
+        <Button onClick={countDown} className="countDown">
           <MinusIcon fontSize="large" />
         </Button>
       </div>
       <div className="options">
         <IconButton onClick={resetCount} className="reset" color="secondary">
-          <ResetIcon fontSize="large" />
+          <ResetIcon />
         </IconButton>
-        <IconButton className="setting" color="secondary">
-          <SettingIcon fontSize="large" />
-        </IconButton>
+        <EditCounterButton counter={counter} editCounter={editCounter} />
       </div>
     </div>
   );

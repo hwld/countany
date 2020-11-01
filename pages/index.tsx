@@ -11,22 +11,39 @@ const Home: React.FC<{ className?: string }> = ({ className }) => {
   const [counters, setCounters] = useState<CounterObj[]>([]);
 
   const addCounter = (fields: CounterFields) => {
-    setCounters((counters) => [
-      ...counters,
-      {
+    setCounters((counters) => {
+      const newCounter: CounterObj = {
         id: Math.random().toString(),
-        name: `新しいカウンター`,
-        value: 0,
-        startWith: 0,
-        amount: 1,
-        maxValue: 100,
-        minValue: -100,
-      },
-    ]);
+        value: fields.startWith,
+        ...fields,
+      };
+      return [...counters, newCounter];
+    });
   };
 
   const removeCounter = (id: string) => {
     setCounters((state) => [...state.filter((state) => state.id !== id)]);
+  };
+
+  const editCounter = (id: string, fields: CounterFields) => {
+    setCounters((counters) => {
+      return [
+        ...counters.map((counter) => {
+          if (counter.id === id) {
+            const newCounter: CounterObj = {
+              ...counter,
+              name: fields.name,
+              startWith: fields.startWith,
+              amount: fields.amount,
+              maxValue: fields.maxValue,
+              minValue: fields.minValue,
+            };
+            return newCounter;
+          }
+          return counter;
+        }),
+      ];
+    });
   };
 
   const countUp = (id: string) => {
@@ -86,10 +103,11 @@ const Home: React.FC<{ className?: string }> = ({ className }) => {
       <Main>
         <CounterContainer
           counters={counters}
+          editCounter={editCounter}
+          removeCounter={removeCounter}
           countUp={countUp}
           countDown={countDown}
           resetCount={resetCount}
-          removeCounter={removeCounter}
         />
       </Main>
       <AddCounterButton addCounter={addCounter} className="addCounter" />
