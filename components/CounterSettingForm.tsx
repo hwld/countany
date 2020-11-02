@@ -24,13 +24,13 @@ const Component: React.FC<Props> = ({
     getValues,
     clearErrors,
     trigger,
-  } = useForm<CounterFields>({
+  } = useForm<Record<keyof CounterFields, string>>({
     defaultValues: {
-      name: counter?.name || "カウンター",
-      startWith: counter?.startWith || 0,
-      amount: counter?.amount || 1,
-      maxValue: counter?.maxValue || 9999999999,
-      minValue: counter?.minValue || -9999999999,
+      name: counter?.name,
+      startWith: `${counter?.startWith || 0}`,
+      amount: `${counter?.amount || 1}`,
+      maxValue: `${counter?.maxValue || 9999999999}`,
+      minValue: `${counter?.minValue || -9999999999}`,
     },
   });
 
@@ -57,21 +57,23 @@ const Component: React.FC<Props> = ({
     message: `${counterMaxLength}桁以内の数字で入力してください`,
   };
 
-  const inputProps = {
-    autoComplete: "off",
-  };
-
   const validationName = {
     startLessOrEqualMax: "startLessOrEqualMax",
     startGreaterOrEqualMin: "startGreaterOrEqualMin",
     maxGreaterOrEqualMin: "maxGreaterOrEqualMin",
   };
 
-  const includeInValidationName = (name: string | undefined) => {
-    return (
-      validationName.startLessOrEqualMax === name ||
-      validationName.startGreaterOrEqualMin === name ||
-      validationName.maxGreaterOrEqualMin === name
+  // 最小値 <= 初期値 <= 最大値 を満たしていない?
+  const isNumRelationIncorrect = () => {
+    return [
+      errors.startWith?.type,
+      errors.maxValue?.type,
+      errors.minValue?.type,
+    ].some(
+      (type) =>
+        validationName.startLessOrEqualMax === type ||
+        validationName.startGreaterOrEqualMin === type ||
+        validationName.maxGreaterOrEqualMin === type
     );
   };
 
@@ -126,7 +128,9 @@ const Component: React.FC<Props> = ({
         className="formField"
         label="カウンター名"
         placeholder="50文字以内で入力してください"
-        inputProps={inputProps}
+        inputProps={{
+          autoComplete: "off",
+        }}
         inputRef={register({
           required: "カウンター名を入力してください",
           maxLength: {
@@ -143,7 +147,7 @@ const Component: React.FC<Props> = ({
       <TextField
         className="formField"
         label="初期値"
-        inputProps={inputProps}
+        type="number"
         inputRef={register({
           required: "初期値を入力してください",
           pattern: counterPatternRule,
@@ -165,7 +169,7 @@ const Component: React.FC<Props> = ({
       <TextField
         className="formField"
         label="増減量"
-        inputProps={inputProps}
+        type="number"
         inputRef={register({
           required: "増減量を入力してください",
           pattern: counterPatternRule,
@@ -179,7 +183,7 @@ const Component: React.FC<Props> = ({
       <TextField
         className="formField"
         label="最大値"
-        inputProps={inputProps}
+        type="number"
         inputRef={register({
           required: "最大値を入力してください",
           pattern: counterPatternRule,
@@ -201,7 +205,7 @@ const Component: React.FC<Props> = ({
       <TextField
         className="formField"
         label="最小値"
-        inputProps={{ autoComplete: "off" }}
+        type="number"
         inputRef={register({
           required: "最小値を入力してください",
           pattern: counterPatternRule,
@@ -222,9 +226,7 @@ const Component: React.FC<Props> = ({
       </div>
       <div className="optionErrorField">
         <Typography className="errorText">
-          {(includeInValidationName(errors.startWith?.type) ||
-            includeInValidationName(errors.maxValue?.type) ||
-            includeInValidationName(errors.minValue?.type)) &&
+          {isNumRelationIncorrect() &&
             "最小値 <= 初期値 <= 最大値　になるように入力してください"}
         </Typography>
       </div>
@@ -237,7 +239,7 @@ const StyledComponent = styled(Component)`
   flex-direction: column;
 
   & > .formField {
-    margin-top: 5%;
+    margin-top: 2%;
   }
 
   & > .errorField {
