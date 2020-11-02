@@ -25,5 +25,9 @@ export const theme = createMuiTheme({
       variant: "contained",
       color: "primary",
     },
+    MuiTextField: {
+      variant: "filled",
+      color: "secondary",
+    },
   },
 });

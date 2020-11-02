@@ -17,9 +17,30 @@ const Component: React.FC<Props> = ({
   counter,
   onSubmit: submit = () => {},
 }) => {
-  const { register, errors, handleSubmit, getValues, clearErrors } = useForm<
-    CounterFields
-  >();
+  const {
+    register,
+    errors,
+    handleSubmit,
+    getValues,
+    clearErrors,
+    trigger,
+  } = useForm<CounterFields>({
+    defaultValues: {
+      name: counter?.name || "カウンター",
+      startWith: counter?.startWith || 0,
+      amount: counter?.amount || 1,
+      maxValue: counter?.maxValue || 9999999999,
+      minValue: counter?.minValue || -9999999999,
+    },
+  });
+
+  // TextFieldのnameに渡す文字列がCounterFieldsのフィールド名と一致していることを保証したい
+  // CounterFieldsのフィールド名が変更されたらここがエラーになるはず.
+  const name: keyof CounterFields = "name";
+  const startWith: keyof CounterFields = "startWith";
+  const amount: keyof CounterFields = "amount";
+  const maxValue: keyof CounterFields = "maxValue";
+  const minValue: keyof CounterFields = "minValue";
 
   const onSubmit = (fields: Record<keyof CounterFields, string>) => {
     submit({
@@ -31,17 +52,72 @@ const Component: React.FC<Props> = ({
     });
   };
 
-  // TextFieldのnameに渡す文字列がCounterFieldsのフィールド名と一致していることを保証したい
-  // CounterFieldsのフィールド名が変更されたらここがエラーになるはず.
-  const name: keyof CounterFields = "name";
-  const startWith: keyof CounterFields = "startWith";
-  const amount: keyof CounterFields = "amount";
-  const maxValue: keyof CounterFields = "maxValue";
-  const minValue: keyof CounterFields = "minValue";
-
   const counterPatternRule = {
     value: new RegExp(`^(\\+|-){0,1}\\d{1,${counterMaxLength}}$`),
     message: `${counterMaxLength}桁以内の数字で入力してください`,
+  };
+
+  const inputProps = {
+    autoComplete: "off",
+  };
+
+  const validationName = {
+    startLessOrEqualMax: "startLessOrEqualMax",
+    startGreaterOrEqualMin: "startGreaterOrEqualMin",
+    maxGreaterOrEqualMin: "maxGreaterOrEqualMin",
+  };
+
+  const includeInValidationName = (name: string | undefined) => {
+    return (
+      validationName.startLessOrEqualMax === name ||
+      validationName.startGreaterOrEqualMin === name ||
+      validationName.maxGreaterOrEqualMin === name
+    );
+  };
+
+  const validateStartLessOrEqualMax = () => {
+    if (Number(getValues(startWith)) <= Number(getValues(maxValue))) {
+      if (errors.startWith?.type === validationName.startLessOrEqualMax) {
+        clearErrors(startWith);
+        trigger(startWith);
+      }
+      if (errors.maxValue?.type === validationName.startLessOrEqualMax) {
+        clearErrors(maxValue);
+        trigger(maxValue);
+      }
+      return true;
+    }
+    return false;
+  };
+
+  const validateStartGreaterOrEqualMin = () => {
+    if (Number(getValues(startWith)) >= Number(getValues(minValue))) {
+      if (errors.startWith?.type === validationName.startGreaterOrEqualMin) {
+        clearErrors(startWith);
+        trigger(startWith);
+      }
+      if (errors.minValue?.type === validationName.startGreaterOrEqualMin) {
+        clearErrors(minValue);
+        trigger(minValue);
+      }
+      return true;
+    }
+    return false;
+  };
+
+  const validateMaxGreaterOrEqualMin = () => {
+    if (Number(getValues(maxValue)) >= Number(getValues(minValue))) {
+      if (errors.maxValue?.type === validationName.maxGreaterOrEqualMin) {
+        clearErrors(maxValue);
+        trigger(maxValue);
+      }
+      if (errors.minValue?.type === validationName.maxGreaterOrEqualMin) {
+        clearErrors(minValue);
+        trigger(minValue);
+      }
+      return true;
+    }
+    return false;
   };
 
   return (
@@ -50,10 +126,7 @@ const Component: React.FC<Props> = ({
         className="formField"
         label="カウンター名"
         placeholder="50文字以内で入力してください"
-        variant="filled"
-        color="secondary"
-        defaultValue={counter?.name}
-        inputProps={{ autoComplete: "off" }}
+        inputProps={inputProps}
         inputRef={register({
           required: "カウンター名を入力してください",
           maxLength: {
@@ -70,29 +143,15 @@ const Component: React.FC<Props> = ({
       <TextField
         className="formField"
         label="初期値"
-        variant="filled"
-        color="secondary"
-        defaultValue={counter?.startWith || 0}
-        inputProps={{ autoComplete: "off" }}
+        inputProps={inputProps}
         inputRef={register({
           required: "初期値を入力してください",
           pattern: counterPatternRule,
-          // 最小値 <= 初期値 <= 最大値
-          validate: (value) => {
-            const start = Number(value);
-            const max = Number(getValues(maxValue));
-            const min = Number(getValues(minValue));
-
-            if (start <= max && start >= min) {
-              if (errors.maxValue?.type === "validate") {
-                clearErrors(maxValue);
-              }
-              if (errors.minValue?.type === "validate") {
-                clearErrors(minValue);
-              }
-              return true;
-            }
-            return false;
+          // 初期値 <= 最大値
+          // 初期値 >= 最小値
+          validate: {
+            [validationName.startLessOrEqualMax]: validateStartLessOrEqualMax,
+            [validationName.startGreaterOrEqualMin]: validateStartGreaterOrEqualMin,
           },
         })}
         name={startWith}
@@ -106,10 +165,7 @@ const Component: React.FC<Props> = ({
       <TextField
         className="formField"
         label="増減量"
-        variant="filled"
-        color="secondary"
-        defaultValue={counter?.amount || 1}
-        inputProps={{ autoComplete: "off" }}
+        inputProps={inputProps}
         inputRef={register({
           required: "増減量を入力してください",
           pattern: counterPatternRule,
@@ -123,28 +179,15 @@ const Component: React.FC<Props> = ({
       <TextField
         className="formField"
         label="最大値"
-        variant="filled"
-        color="secondary"
-        defaultValue={counter?.maxValue || 9999999999}
-        inputProps={{ autoComplete: "off" }}
+        inputProps={inputProps}
         inputRef={register({
           required: "最大値を入力してください",
           pattern: counterPatternRule,
-          // 最小値 <= 初期値 <= 最大値
-          validate: (value) => {
-            const start = Number(getValues(startWith));
-            const max = Number(value);
-            const min = Number(getValues(minValue));
-            if (max >= start && max > min) {
-              if (errors.startWith?.type === "validate") {
-                clearErrors(startWith);
-              }
-              if (errors.minValue?.type === "validate") {
-                clearErrors(minValue);
-              }
-              return true;
-            }
-            return false;
+          // 初期値 <= 最大値
+          // 最大値 >= 最小値
+          validate: {
+            [validationName.startLessOrEqualMax]: validateStartLessOrEqualMax,
+            [validationName.maxGreaterOrEqualMin]: validateMaxGreaterOrEqualMin,
           },
         })}
         name={maxValue}
@@ -158,28 +201,15 @@ const Component: React.FC<Props> = ({
       <TextField
         className="formField"
         label="最小値"
-        variant="filled"
-        color="secondary"
-        defaultValue={counter?.minValue || -9999999999}
         inputProps={{ autoComplete: "off" }}
         inputRef={register({
           required: "最小値を入力してください",
           pattern: counterPatternRule,
-          // 最小値 <= 初期値 <= 最大値
-          validate: (value) => {
-            const start = Number(getValues(startWith));
-            const max = Number(getValues(maxValue));
-            const min = Number(value);
-            if (min <= start && min < max) {
-              if (errors.startWith?.type === "validate") {
-                clearErrors(startWith);
-              }
-              if (errors.maxValue?.type === "validate") {
-                clearErrors(maxValue);
-              }
-              return true;
-            }
-            return false;
+          // 初期値 >= 最小値
+          // 最大値 >= 最小値
+          validate: {
+            [validationName.startGreaterOrEqualMin]: validateStartGreaterOrEqualMin,
+            [validationName.maxGreaterOrEqualMin]: validateMaxGreaterOrEqualMin,
           },
         })}
         name={minValue}
@@ -192,10 +222,10 @@ const Component: React.FC<Props> = ({
       </div>
       <div className="optionErrorField">
         <Typography className="errorText">
-          {(errors.startWith?.type === "validate" ||
-            errors.maxValue?.type === "validate" ||
-            errors.minValue?.type === "validate") &&
-            "最小値 <= 初期値 <= 最大値 になるように入力してください"}
+          {(includeInValidationName(errors.startWith?.type) ||
+            includeInValidationName(errors.maxValue?.type) ||
+            includeInValidationName(errors.minValue?.type)) &&
+            "最小値 <= 初期値 <= 最大値　になるように入力してください"}
         </Typography>
       </div>
     </form>
@@ -229,12 +259,6 @@ const StyledComponent = styled(Component)`
       font-size: 1rem;
       color: ${(props) => props.theme.palette.error.main};
     }
-  }
-
-  & input[type="number"]::-webkit-inner-spin-button,
-  & input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
   }
 `;
 
