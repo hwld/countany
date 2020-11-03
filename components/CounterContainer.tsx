@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from "framer-motion";
 import React from "react";
 import styled from "styled-components";
 import { Counter, CounterFields, CounterObj } from "./Counter";
@@ -23,18 +24,26 @@ const Component: React.FC<Props> = ({
 }) => {
   return (
     <div className={className}>
-      {counters.map((counter) => (
-        <Counter
-          key={counter.id}
-          className="counter"
-          counter={counter}
-          onEditCounter={onEditCounter}
-          onRemoveCounter={onRemoveCounter}
-          onCountUp={onCountUp}
-          onCountDown={onCountDown}
-          onResetCount={onResetCount}
-        ></Counter>
-      ))}
+      <AnimatePresence>
+        {counters.map((counter) => (
+          <motion.div
+            key={counter.id}
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0 }}
+          >
+            <Counter
+              className="counter"
+              counter={counter}
+              onEditCounter={onEditCounter}
+              onRemoveCounter={onRemoveCounter}
+              onCountUp={onCountUp}
+              onCountDown={onCountDown}
+              onResetCount={onResetCount}
+            ></Counter>
+          </motion.div>
+        ))}
+      </AnimatePresence>
     </div>
   );
 };
@@ -44,7 +53,7 @@ const StyledComponent = styled(Component)`
   display: flex;
   flex-wrap: wrap;
 
-  & > .counter {
+  & .counter {
     margin: 5px;
   }
 `;
