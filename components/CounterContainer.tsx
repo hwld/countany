@@ -53,7 +53,7 @@ const StyledComponent = styled(Component)`
   display: flex;
   flex-wrap: wrap;
 
-  & .counter {
+  & > div {
     margin: 5px;
   }
 `;

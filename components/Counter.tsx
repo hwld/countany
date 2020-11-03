@@ -1,11 +1,12 @@
 import { Button, IconButton, Typography } from "@material-ui/core";
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import PlusIcon from "@material-ui/icons/Add";
 import MinusIcon from "@material-ui/icons/Remove";
 import ResetIcon from "@material-ui/icons/Refresh";
 import RemoveIcon from "@material-ui/icons/Clear";
 import { EditCounterButton } from "./EditCounterButton";
+import { motion, useAnimation } from "framer-motion";
 
 // 変更可能なフィールド
 export type CounterFields = {
@@ -42,6 +43,8 @@ const Component: React.FC<Props> = ({
   onCountDown,
   onResetCount,
 }) => {
+  const controls = useAnimation();
+
   const countUp = () => {
     onCountUp(counter.id);
   };
@@ -62,6 +65,18 @@ const Component: React.FC<Props> = ({
     onEditCounter(counter.id, fields);
   };
 
+  useEffect(() => {
+    controls.start({
+      scale: 1,
+      transition: {
+        type: "spring",
+        velocity: 30,
+        stiffness: 700,
+        damping: 50,
+      },
+    });
+  }, [counter.value]);
+
   return (
     <div className={className}>
       <div className="head">
@@ -74,7 +89,9 @@ const Component: React.FC<Props> = ({
           <RemoveIcon />
         </IconButton>
       </div>
-      <Typography className="counts">{counter.value}</Typography>
+      <motion.div animate={controls}>
+        <Typography className="counts">{counter.value}</Typography>
+      </motion.div>
       <div className="counter">
         <Button onClick={countUp} className="countUp">
           <PlusIcon fontSize="large" />
@@ -122,7 +139,7 @@ const StyledComponent = styled(Component)`
     }
   }
 
-  & > .counts {
+  & > div > .counts {
     margin-top: 0px;
     font-size: 50px;
     text-align: center;
