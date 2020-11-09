@@ -8,7 +8,23 @@ import { CounterFields, CounterObj } from "../components/Counter";
 import { AddCounterButton } from "../components/AddCounterButton";
 
 const Home: React.FC<{ className?: string }> = ({ className }) => {
-  const [counters, setCounters] = useState<CounterObj[]>([]);
+  const testCounter = (): CounterObj => ({
+    amount: 1,
+    id: Math.random().toString(),
+    maxValue: 99999,
+    minValue: -99999,
+    name: "test",
+    startWith: 0,
+    value: 0,
+  });
+  const [counters, setCounters] = useState<CounterObj[]>([
+    testCounter(),
+    testCounter(),
+    testCounter(),
+    testCounter(),
+    testCounter(),
+    testCounter(),
+  ]);
 
   const addCounter = (fields: CounterFields) => {
     setCounters((counters) => {

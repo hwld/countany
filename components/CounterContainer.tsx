@@ -28,9 +28,11 @@ const Component: React.FC<Props> = ({
         {counters.map((counter) => (
           <motion.div
             key={counter.id}
+            layout
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0 }}
+            transition={{ duration: 0.2 }}
           >
             <Counter
               className="counter"
