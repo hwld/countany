@@ -1,49 +1,52 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 import { Header } from "../components/Header";
 import { Main } from "../components/Main";
 import { CounterContainer } from "../components/CounterContainer";
 import { CounterFields, CounterObj } from "../components/Counter";
-
 import { AddCounterButton } from "../components/AddCounterButton";
+import useSWR from "swr";
+import { fetcher } from "../components/util/fetcher";
+import { Counter } from "@prisma/client";
 
 const Home: React.FC<{ className?: string }> = ({ className }) => {
-  const testCounter = (): CounterObj => ({
-    amount: 1,
-    id: Math.random().toString(),
-    maxValue: 99999,
-    minValue: -99999,
-    name: "test",
-    startWith: 0,
-    value: 0,
-  });
-  const [counters, setCounters] = useState<CounterObj[]>([
-    testCounter(),
-    testCounter(),
-    testCounter(),
-    testCounter(),
-    testCounter(),
-    testCounter(),
-  ]);
+  const { data: counters = [], mutate } = useSWR<Counter[]>(
+    "/api/counters",
+    fetcher
+  );
 
-  const addCounter = (fields: CounterFields) => {
-    setCounters((counters) => {
-      const newCounter: CounterObj = {
-        id: Math.random().toString(),
-        value: fields.startWith,
-        ...fields,
-      };
-      return [...counters, newCounter];
+  const addCounter = async (fields: CounterFields) => {
+    const id = Math.random().toString();
+    await fetcher("/api/counter/create", {
+      id,
+      value: fields.startWith,
+      ...fields,
     });
+    mutate(
+      [
+        {
+          id,
+          value: fields.startWith,
+          ...fields,
+        },
+        ...counters,
+      ],
+      false
+    );
   };
 
-  const removeCounter = (id: string) => {
-    setCounters((state) => [...state.filter((state) => state.id !== id)]);
+  const removeCounter = async (id: string) => {
+    await fetcher("/api/counter/delete", { id });
+    await mutate(
+      counters.filter((c) => c.id !== id),
+      false
+    );
   };
 
-  const editCounter = (id: string, fields: CounterFields) => {
-    setCounters((counters) => {
-      return [
+  const editCounter = async (id: string, fields: CounterFields) => {
+    await fetcher("/api/counter/update", { id, ...fields });
+    mutate(
+      [
         ...counters.map((counter) => {
           if (counter.id === id) {
             const newCounter: CounterObj = {
@@ -58,47 +61,80 @@ const Home: React.FC<{ className?: string }> = ({ className }) => {
           }
           return counter;
         }),
-      ];
-    });
+      ],
+      false
+    );
   };
 
-  const countUp = (id: string) => {
-    setCounters((counters) => {
-      return [
+  const countUp = async (id: string) => {
+    const target = counters.find((c) => c.id === id);
+    if (!target) {
+      return;
+    }
+    if (target.value + target.amount > target.maxValue) {
+      return;
+    }
+
+    await fetcher("/api/counter/update", {
+      id,
+      value: target.value + target.amount,
+    });
+    mutate(
+      [
         ...counters.map((counter) => {
           if (counter.id === id) {
-            const newCounts = counter.value + counter.amount;
-            if (newCounts <= counter.maxValue) {
-              const newCounter: CounterObj = { ...counter, value: newCounts };
-              return newCounter;
-            }
+            const newCounter: CounterObj = {
+              ...counter,
+              value: counter.value + counter.amount,
+            };
+            return newCounter;
           }
           return counter;
         }),
-      ];
-    });
+      ],
+      false
+    );
   };
 
-  const countDown = (id: string) => {
-    setCounters((counters) => {
-      return [
+  const countDown = async (id: string) => {
+    const target = counters.find((c) => c.id === id);
+    if (!target) {
+      return;
+    }
+    if (target.value - target.amount < target.minValue) {
+      return;
+    }
+
+    await fetcher("/api/counter/update", {
+      id,
+      value: target.value - target.amount,
+    });
+    mutate(
+      [
         ...counters.map((counter) => {
           if (counter.id === id) {
-            const newCounts = counter.value - counter.amount;
-            if (newCounts >= counter.minValue) {
-              const newCounter: CounterObj = { ...counter, value: newCounts };
-              return newCounter;
-            }
+            const newCounter: CounterObj = {
+              ...counter,
+              value: counter.value - counter.amount,
+            };
+            return newCounter;
           }
           return counter;
         }),
-      ];
-    });
+      ],
+      false
+    );
   };
 
-  const resetCount = (id: string) => {
-    setCounters((counters) => {
-      return [
+  const resetCount = async (id: string) => {
+    const target = counters.find((c) => c.id === id);
+    if (!target) {
+      return;
+    }
+
+    await fetcher("/api/counter/update", { id, value: 0 });
+    mutate(
+      [
         ...counters.map((counter) => {
           if (counter.id === id) {
             const newCounter: CounterObj = {
@@ -109,8 +145,9 @@ const Home: React.FC<{ className?: string }> = ({ className }) => {
           }
           return counter;
         }),
-      ];
-    });
+      ],
+      false
+    );
   };
 
   return (

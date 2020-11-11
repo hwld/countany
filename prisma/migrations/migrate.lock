@@ -1,0 +1,4 @@
+# Prisma Migrate lockfile v1
+
+20201110125149-create-counter-model
+20201111095619-change-id-field-of-counter
