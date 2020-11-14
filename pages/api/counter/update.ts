@@ -1,10 +1,8 @@
-import { Counter, PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
+import { NextApiHandler } from "next";
 const prisma = new PrismaClient();
 
-export default async (
-  req: { body: Counter },
-  res: { json: (counter: Counter) => void }
-): Promise<void> => {
+const updateHandler: NextApiHandler = async (req, res) => {
   const { id, value, name, startWith, amount, maxValue, minValue } = req.body;
   const counter = await prisma.counter.update({
     where: { id },
@@ -19,3 +17,5 @@ export default async (
   });
   res.json(counter);
 };
+
+export default updateHandler;

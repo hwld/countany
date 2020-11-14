@@ -1,15 +1,14 @@
 import { Counter, PrismaClient } from "@prisma/client";
+import { NextApiHandler } from "next";
 
 const prisma = new PrismaClient();
 
-export default async (
-  req: { body: { id: string } },
-  res: { json: (counter: Counter) => void }
-): Promise<void> => {
+const deleteHandler: NextApiHandler = async (req, res) => {
   const { id } = req.body;
   const counter = await prisma.counter.delete({
     where: { id },
   });
   res.json(counter);
-  return;
 };
+
+export default deleteHandler;

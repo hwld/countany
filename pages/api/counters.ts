@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { Counter, PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
+import { NextApiHandler } from "next";
 const prisma = new PrismaClient();
 
-export default async (
-  req: {},
-  res: { json: (counters: Counter[]) => void }
-): Promise<void> => {
+const countersHandler: NextApiHandler = async (req, res) => {
   const counters = await prisma.counter.findMany({});
   res.json(counters);
 };
+
+export default countersHandler;
