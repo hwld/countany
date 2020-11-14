@@ -17,34 +17,35 @@ const Home: React.FC<{ className?: string }> = ({ className }) => {
 
   const addCounter = async (fields: CounterFields) => {
     const id = Math.random().toString();
-    await fetcher("/api/counter/create", {
-      id,
-      value: fields.startWith,
-      ...fields,
-    });
     mutate(
       [
+        ...counters,
         {
           id,
           value: fields.startWith,
           ...fields,
         },
-        ...counters,
       ],
       false
     );
+    await fetcher("/api/counter/create", {
+      id,
+      value: fields.startWith,
+      ...fields,
+    });
+    mutate();
   };
 
   const removeCounter = async (id: string) => {
-    await fetcher("/api/counter/delete", { id });
-    await mutate(
+    mutate(
       counters.filter((c) => c.id !== id),
       false
     );
+    await fetcher("/api/counter/delete", { id });
+    mutate();
   };
 
   const editCounter = async (id: string, fields: CounterFields) => {
-    await fetcher("/api/counter/update", { id, ...fields });
     mutate(
       [
         ...counters.map((counter) => {
@@ -64,6 +65,8 @@ const Home: React.FC<{ className?: string }> = ({ className }) => {
       ],
       false
     );
+    await fetcher("/api/counter/update", { id, ...fields });
+    mutate();
   };
 
   const countUp = async (id: string) => {
@@ -75,10 +78,6 @@ const Home: React.FC<{ className?: string }> = ({ className }) => {
       return;
     }
 
-    await fetcher("/api/counter/update", {
-      id,
-      value: target.value + target.amount,
-    });
     mutate(
       [
         ...counters.map((counter) => {
@@ -94,6 +93,11 @@ const Home: React.FC<{ className?: string }> = ({ className }) => {
       ],
       false
     );
+    await fetcher("/api/counter/update", {
+      id,
+      value: target.value + target.amount,
+    });
+    mutate();
   };
 
   const countDown = async (id: string) => {
@@ -105,10 +109,6 @@ const Home: React.FC<{ className?: string }> = ({ className }) => {
       return;
     }
 
-    await fetcher("/api/counter/update", {
-      id,
-      value: target.value - target.amount,
-    });
     mutate(
       [
         ...counters.map((counter) => {
@@ -124,6 +124,11 @@ const Home: React.FC<{ className?: string }> = ({ className }) => {
       ],
       false
     );
+    await fetcher("/api/counter/update", {
+      id,
+      value: target.value - target.amount,
+    });
+    mutate();
   };
 
   const resetCount = async (id: string) => {
@@ -132,7 +137,6 @@ const Home: React.FC<{ className?: string }> = ({ className }) => {
       return;
     }
 
-    await fetcher("/api/counter/update", { id, value: 0 });
     mutate(
       [
         ...counters.map((counter) => {
@@ -148,6 +152,8 @@ const Home: React.FC<{ className?: string }> = ({ className }) => {
       ],
       false
     );
+    await fetcher("/api/counter/update", { id, value: 0 });
+    mutate();
   };
 
   return (
