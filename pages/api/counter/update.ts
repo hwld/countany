@@ -1,21 +1,38 @@
 import { PrismaClient } from "@prisma/client";
 import { NextApiHandler } from "next";
+import { getSession } from "next-auth/client";
 const prisma = new PrismaClient();
 
 const updateHandler: NextApiHandler = async (req, res) => {
   const { id, value, name, startWith, amount, maxValue, minValue } = req.body;
-  const counter = await prisma.counter.update({
-    where: { id },
+
+  const session = await getSession({ req });
+  console.log(session);
+
+  await prisma.user.update({
+    where: { email: session?.user.email },
     data: {
-      value,
-      name,
-      startWith,
-      amount,
-      maxValue,
-      minValue,
+      counters: {
+        update: {
+          where: { id },
+          data: { value, name, startWith, amount, maxValue, minValue },
+        },
+      },
     },
   });
-  res.json(counter);
+
+  // const counter = await prisma.counter.update({
+  //   where: { id },
+  //   data: {
+  //     value,
+  //     name,
+  //     startWith,
+  //     amount,
+  //     maxValue,
+  //     minValue,
+  //   },
+  // });
+  res.json({});
 };
 
 export default updateHandler;

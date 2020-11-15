@@ -7,7 +7,7 @@ import { CounterFields, CounterObj } from "../components/Counter";
 import { AddCounterButton } from "../components/AddCounterButton";
 import useSWR from "swr";
 import { fetcher } from "../components/util/fetcher";
-import { Counter } from "@prisma/client";
+import { Counter } from "../types/client";
 
 const Home: React.FC<{ className?: string }> = ({ className }) => {
   const { data: counters = [], mutate } = useSWR<Counter[]>(

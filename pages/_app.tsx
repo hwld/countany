@@ -6,6 +6,7 @@ import {
   ThemeProvider as MuiThemeProvider,
 } from "@material-ui/core";
 import { GlobalStyle } from "../styles/globalStyle";
+import { Provider as SessionProvider } from "next-auth/client";
 import { theme } from "../styles/theme";
 
 const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
@@ -22,7 +23,9 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
       <GlobalStyle />
       <MuiThemeProvider theme={theme}>
         <ScThemeProvider theme={theme}>
-          <Component {...pageProps} />
+          <SessionProvider session={pageProps.session}>
+            <Component {...pageProps} />
+          </SessionProvider>
         </ScThemeProvider>
       </MuiThemeProvider>
     </StylesProvider>

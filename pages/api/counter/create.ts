@@ -1,22 +1,32 @@
 import { PrismaClient } from "@prisma/client";
 import { NextApiHandler } from "next";
+import { getSession } from "next-auth/client";
 
 const prisma = new PrismaClient();
 
 const createHandler: NextApiHandler = async (req, res) => {
   const { id, value, name, startWith, amount, maxValue, minValue } = req.body;
-  const counter = await prisma.counter.create({
-    data: {
-      id,
-      value,
-      name,
-      startWith,
-      amount,
-      maxValue,
-      minValue,
-    },
-  });
-  res.json(counter);
+
+  const session = await getSession({ req });
+  console.log(session);
+
+  try {
+    const counter = await prisma.counter.create({
+      data: {
+        id,
+        value,
+        name,
+        startWith,
+        amount,
+        maxValue,
+        minValue,
+        user: { connect: { email: session?.user.email } },
+      },
+    });
+    res.json(counter);
+  } catch {
+    throw new Error("カウンターを作成することができませんでした");
+  }
 };
 
 export default createHandler;
