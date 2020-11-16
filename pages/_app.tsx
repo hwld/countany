@@ -9,8 +9,9 @@ import {
 import { GlobalStyle } from "../styles/globalStyle";
 import { Provider as SessionProvider } from "next-auth/client";
 import { theme } from "../styles/theme";
+import { NextPage } from "next";
 
-const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
+const MyApp: NextPage<AppProps> = ({ Component, pageProps }) => {
   //useEffectはクライアントサイドでのみ実行される
   useEffect(() => {
     const jssStyles = document.querySelector("#jss-server-side");

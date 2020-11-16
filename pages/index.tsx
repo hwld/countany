@@ -5,8 +5,16 @@ import { Main } from "../components/Main";
 import { CounterContainer } from "../components/CounterContainer";
 import { AddCounterButton } from "../components/AddCounterButton";
 import { useCounters } from "../util/hooks";
+import { getSession } from "next-auth/client";
+import { GetServerSideProps, NextPage } from "next";
 
-const Home: React.FC<{ className?: string }> = ({ className }) => {
+// サーバーサイドでsessionをProviderに入れて、すでにログインされているときにクライアント側でundefinedを返さないようにする
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+  const session = await getSession({ req });
+  return { props: { session } };
+};
+
+const Home: NextPage<{ className?: string }> = ({ className }) => {
   const {
     counters,
     addCounter,
