@@ -8,25 +8,20 @@ const createHandler: NextApiHandler = async (req, res) => {
   const { id, value, name, startWith, amount, maxValue, minValue } = req.body;
 
   const session = await getSession({ req });
-  console.log(session);
 
-  try {
-    const counter = await prisma.counter.create({
-      data: {
-        id,
-        value,
-        name,
-        startWith,
-        amount,
-        maxValue,
-        minValue,
-        user: { connect: { email: session?.user.email } },
-      },
-    });
-    res.json(counter);
-  } catch {
-    throw new Error("カウンターを作成することができませんでした");
-  }
+  const counter = await prisma.counter.create({
+    data: {
+      id,
+      value,
+      name,
+      startWith,
+      amount,
+      maxValue,
+      minValue,
+      user: { connect: { email: session?.user.email } },
+    },
+  });
+  res.json(counter);
 };
 
 export default createHandler;

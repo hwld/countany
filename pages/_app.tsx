@@ -1,3 +1,4 @@
+import React from "react";
 import { useEffect } from "react";
 import { AppProps } from "next/dist/next-server/lib/router/router";
 import { ThemeProvider as ScThemeProvider } from "styled-components";

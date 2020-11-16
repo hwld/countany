@@ -14,9 +14,6 @@ const deleteHandler: NextApiHandler = async (req, res) => {
     data: { counters: { delete: { id } } },
   });
 
-  // const counter = await prisma.counter.delete({
-  //   where: { id },
-  // });
   res.json({});
 };
 

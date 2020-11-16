@@ -7,7 +7,6 @@ const updateHandler: NextApiHandler = async (req, res) => {
   const { id, value, name, startWith, amount, maxValue, minValue } = req.body;
 
   const session = await getSession({ req });
-  console.log(session);
 
   await prisma.user.update({
     where: { email: session?.user.email },
@@ -21,17 +20,6 @@ const updateHandler: NextApiHandler = async (req, res) => {
     },
   });
 
-  // const counter = await prisma.counter.update({
-  //   where: { id },
-  //   data: {
-  //     value,
-  //     name,
-  //     startWith,
-  //     amount,
-  //     maxValue,
-  //     minValue,
-  //   },
-  // });
   res.json({});
 };
 

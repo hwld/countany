@@ -1,17 +1,10 @@
-import {
-  AppBar,
-  Button,
-  IconButton,
-  Toolbar,
-  Typography,
-} from "@material-ui/core";
+import { AppBar, Button, Toolbar, Typography } from "@material-ui/core";
 import { signIn, signOut, useSession } from "next-auth/client";
 import React from "react";
 import styled from "styled-components";
 
 const Component: React.FC<{ className?: string }> = ({ className }) => {
   const [session] = useSession();
-  console.log("render");
 
   const login = () => {
     signIn("google");
@@ -28,17 +21,12 @@ const Component: React.FC<{ className?: string }> = ({ className }) => {
           Countany
         </Typography>
         {session ? (
-          <>
-            <IconButton className={`${className}_iconButton`}>
-              <img src={session.user.image} />
-            </IconButton>
-            <Button onClick={logout} variant="text" color="default">
-              Logout
-            </Button>
-          </>
+          <Button onClick={logout} variant="outlined" color="default">
+            ログアウト
+          </Button>
         ) : (
-          <Button onClick={login} variant="text" color="default">
-            Login
+          <Button onClick={login} variant="outlined" color="default">
+            ログイン
           </Button>
         )}
       </Toolbar>
@@ -52,11 +40,11 @@ const StyledComponent = styled(Component)`
   }
 
   &_iconButton {
-    width: 55px;
-    height: 55px;
+    width: 48px;
+    height: 48px;
     & img {
-      width: 45px;
-      height: 45px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
     }
   }
