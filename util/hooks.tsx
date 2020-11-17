@@ -53,22 +53,20 @@ export function useRemoteCounters(): useCountersResults {
 
   const editCounter = async (id: string, fields: CounterFields) => {
     mutate(
-      [
-        ...counters.map((counter) => {
-          if (counter.id === id) {
-            const newCounter: Counter = {
-              ...counter,
-              name: fields.name,
-              startWith: fields.startWith,
-              amount: fields.amount,
-              maxValue: fields.maxValue,
-              minValue: fields.minValue,
-            };
-            return newCounter;
-          }
-          return counter;
-        }),
-      ],
+      counters.map((counter) => {
+        if (counter.id === id) {
+          const newCounter: Counter = {
+            ...counter,
+            name: fields.name,
+            startWith: fields.startWith,
+            amount: fields.amount,
+            maxValue: fields.maxValue,
+            minValue: fields.minValue,
+          };
+          return newCounter;
+        }
+        return counter;
+      }),
       false
     );
     await fetcher("/api/counter/update", { id, ...fields });
@@ -85,18 +83,16 @@ export function useRemoteCounters(): useCountersResults {
     }
 
     mutate(
-      [
-        ...counters.map((counter) => {
-          if (counter.id === id) {
-            const newCounter: Counter = {
-              ...counter,
-              value: counter.value + counter.amount,
-            };
-            return newCounter;
-          }
-          return counter;
-        }),
-      ],
+      counters.map((counter) => {
+        if (counter.id === id) {
+          const newCounter: Counter = {
+            ...counter,
+            value: counter.value + counter.amount,
+          };
+          return newCounter;
+        }
+        return counter;
+      }),
       false
     );
     await fetcher("/api/counter/update", {
@@ -116,18 +112,16 @@ export function useRemoteCounters(): useCountersResults {
     }
 
     mutate(
-      [
-        ...counters.map((counter) => {
-          if (counter.id === id) {
-            const newCounter: Counter = {
-              ...counter,
-              value: counter.value - counter.amount,
-            };
-            return newCounter;
-          }
-          return counter;
-        }),
-      ],
+      counters.map((counter) => {
+        if (counter.id === id) {
+          const newCounter: Counter = {
+            ...counter,
+            value: counter.value - counter.amount,
+          };
+          return newCounter;
+        }
+        return counter;
+      }),
       false
     );
     await fetcher("/api/counter/update", {
@@ -144,18 +138,16 @@ export function useRemoteCounters(): useCountersResults {
     }
 
     mutate(
-      [
-        ...counters.map((counter) => {
-          if (counter.id === id) {
-            const newCounter: Counter = {
-              ...counter,
-              value: counter.startWith,
-            };
-            return newCounter;
-          }
-          return counter;
-        }),
-      ],
+      counters.map((counter) => {
+        if (counter.id === id) {
+          const newCounter: Counter = {
+            ...counter,
+            value: counter.startWith,
+          };
+          return newCounter;
+        }
+        return counter;
+      }),
       false
     );
     await fetcher("/api/counter/update", { id, value: 0 });

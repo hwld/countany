@@ -11,6 +11,7 @@ const Component: React.FC<{ className?: string }> = ({ className }) => {
   };
 
   const logout = () => {
+    // callbackUrlは絶対urlで指定する必要があるが、適当な文字列を渡すとホームに戻る
     signOut({ callbackUrl: "/" });
   };
 

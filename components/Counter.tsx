@@ -75,7 +75,7 @@ const Component: React.FC<Props> = ({
         damping: 50,
       },
     });
-  }, [counter.value]);
+  }, [controls, counter.value]);
 
   return (
     <div className={className}>
