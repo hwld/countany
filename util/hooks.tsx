@@ -6,7 +6,7 @@ import { fetcher } from "./fetcher";
 
 export type useCountersResults = {
   counters: Counter[];
-  addCounter: (fields: CounterFields) => Promise<void>;
+  addCounter: (counter: Counter) => Promise<void>;
   removeCounter: (id: string) => Promise<void>;
   editCounter: (id: string, fields: CounterFields) => Promise<void>;
   countUp: (id: string) => Promise<void>;
@@ -21,24 +21,9 @@ export function useRemoteCounters(): useCountersResults {
     fetcher
   );
 
-  const addCounter = async (fields: CounterFields) => {
-    const id = Math.random().toString();
-    mutate(
-      [
-        ...counters,
-        {
-          id,
-          value: fields.startWith,
-          ...fields,
-        },
-      ],
-      false
-    );
-    await fetcher("/api/counter/create", {
-      id,
-      value: fields.startWith,
-      ...fields,
-    });
+  const addCounter = async (counter: Counter) => {
+    mutate([...counters, counter], false);
+    await fetcher("/api/counter/create", counter);
     mutate();
   };
 
@@ -166,15 +151,13 @@ export function useRemoteCounters(): useCountersResults {
 }
 
 // localStorageを使用したバージョン
-export function useLocalCounters(): useCountersResults {
+export function useLocalCounters(): useCountersResults & {
+  clearCounters: () => void;
+} {
   const [counters, setCounters] = useLocalStorage<Counter[]>("counters", []);
 
-  const addCounter = async (fields: CounterFields) => {
-    const id = Math.random().toString();
-    setCounters((counters) => [
-      ...counters,
-      { id, value: fields.startWith, ...fields },
-    ]);
+  const addCounter = async (counter: Counter) => {
+    setCounters((counters) => [...counters, counter]);
   };
 
   const removeCounter = async (id: string) => {
@@ -231,6 +214,10 @@ export function useLocalCounters(): useCountersResults {
     );
   };
 
+  const clearCounters = () => {
+    setCounters([]);
+  };
+
   return {
     counters,
     addCounter,
@@ -239,6 +226,7 @@ export function useLocalCounters(): useCountersResults {
     countUp,
     countDown,
     resetCount,
+    clearCounters,
   };
 }
 
@@ -246,7 +234,7 @@ export function useLocalCounters(): useCountersResults {
 function useLocalStorage<T>(
   key: string,
   initialValue: T
-): [T, (value: (s: T) => T | T) => void] {
+): [T, (value: ((s: T) => T) | T) => void] {
   const [storedValue, setStoredValue] = useState<T>(() => {
     try {
       const item = window.localStorage.getItem(key);
@@ -256,7 +244,7 @@ function useLocalStorage<T>(
     }
   });
 
-  const setValue = (value: (s: T) => T | T) => {
+  const setValue = (value: ((s: T) => T) | T) => {
     try {
       const valueToStore =
         value instanceof Function ? value(storedValue) : value;

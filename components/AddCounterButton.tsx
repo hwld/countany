@@ -11,10 +11,11 @@ import AddIcon from "@material-ui/icons/Add";
 import { CounterSettingForm } from "./CounterSettingForm";
 import { SlideTransition } from "./SlideTransition";
 import { CounterFields } from "./Counter";
+import { Counter } from "../types/client";
 
 type Props = {
   className?: string;
-  onAddCounter: (fields: CounterFields) => void;
+  onAddCounter: (counter: Counter) => void;
 };
 
 const Component: React.FC<Props> = ({ className, onAddCounter }) => {
@@ -29,7 +30,8 @@ const Component: React.FC<Props> = ({ className, onAddCounter }) => {
   };
 
   const handleSubmit = (fields: CounterFields) => {
-    onAddCounter(fields);
+    const id = Math.random().toString();
+    onAddCounter({ id, value: fields.startWith, ...fields });
     setIsOpen(false);
   };
 
