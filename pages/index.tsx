@@ -12,6 +12,7 @@ import { useSession } from "next-auth/client";
 import { NextPage } from "next";
 import { AnimatePresence, motion } from "framer-motion";
 import { Counter } from "../components/Counter";
+import { SaveCountersButton } from "../components/SaveCountersButton";
 
 const Home: NextPage<{ className?: string }> = ({ className }) => {
   const [session] = useSession();
@@ -75,6 +76,7 @@ const Home: NextPage<{ className?: string }> = ({ className }) => {
         </div>
       </Main>
       <AddCounterButton onAddCounter={addCounter} className="addCounter" />
+      <SaveCountersButton onSave={() => {}} className="saveCounters" />
     </div>
   );
 };
@@ -99,6 +101,12 @@ const StyledHome = styled(Home)`
     position: absolute;
     right: 40px;
     bottom: 40px;
+  }
+
+  & .saveCounters {
+    position: absolute;
+    right: 40px;
+    bottom: 110px;
   }
 `;
 

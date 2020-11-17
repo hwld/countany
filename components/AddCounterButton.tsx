@@ -6,6 +6,8 @@ import {
   DialogContent,
   DialogTitle,
   Fab,
+  Tooltip,
+  Typography,
 } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import { CounterSettingForm } from "./CounterSettingForm";
@@ -37,9 +39,11 @@ const Component: React.FC<Props> = ({ className, onAddCounter }) => {
 
   return (
     <>
-      <Fab color="primary" onClick={open} className={className}>
-        <AddIcon />
-      </Fab>
+      <Tooltip title={<Typography>追加</Typography>} placement="left">
+        <Fab color="primary" onClick={open} className={className}>
+          <AddIcon />
+        </Fab>
+      </Tooltip>
       <Dialog
         open={isOpen}
         onClose={close}
