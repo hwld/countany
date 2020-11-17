@@ -24,6 +24,7 @@ const countersHandler: NextApiHandler = async (req, res) => {
       maxValue: true,
       minValue: true,
     },
+    orderBy: { createdAt: "asc" },
   });
 
   res.json(counters);
