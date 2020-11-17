@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { Header } from "../components/Header";
 import { Main } from "../components/Main";
@@ -15,7 +15,6 @@ import { Counter } from "../components/Counter";
 
 const Home: NextPage<{ className?: string }> = ({ className }) => {
   const [session] = useSession();
-  console.log(session);
 
   const remote = useRemoteCounters();
   const local = useLocalCounters();
@@ -28,6 +27,22 @@ const Home: NextPage<{ className?: string }> = ({ className }) => {
     countDown,
     resetCount,
   }: useCountersResults = session ? remote : local;
+
+  // sessionが存在し、localstorageにカウンターが存在するときにはカウンターをdbに保存する
+  useEffect(() => {
+    const moveLocalToRemote = async () => {
+      for (const c of local.counters) {
+        await remote.addCounter(c);
+      }
+      local.clearCounters();
+    };
+
+    if (session && local.counters.length > 0) {
+      moveLocalToRemote();
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session]);
 
   return (
     <div className={className}>
