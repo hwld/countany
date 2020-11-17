@@ -15,7 +15,9 @@ export type useCountersResults = {
 };
 
 // web apiを使用したバージョン
-export function useRemoteCounters(): useCountersResults {
+export function useRemoteCounters(): useCountersResults & {
+  addCounters: (counters: Counter[]) => Promise<void>;
+} {
   const { data: counters = [], mutate } = useSWR<Counter[]>(
     "/api/counters",
     fetcher
@@ -24,6 +26,14 @@ export function useRemoteCounters(): useCountersResults {
   const addCounter = async (counter: Counter) => {
     mutate([...counters, counter], false);
     await fetcher("/api/counter/create", counter);
+    mutate();
+  };
+
+  const addCounters = async (cs: Counter[]) => {
+    mutate([...counters, ...cs], false);
+    for (const c of cs) {
+      await fetcher("/api/counter/create", c);
+    }
     mutate();
   };
 
@@ -142,6 +152,7 @@ export function useRemoteCounters(): useCountersResults {
   return {
     counters: counters || [],
     addCounter,
+    addCounters,
     removeCounter,
     editCounter,
     countUp,
@@ -250,9 +261,7 @@ function useLocalStorage<T>(
         value instanceof Function ? value(storedValue) : value;
       setStoredValue(valueToStore);
       window.localStorage.setItem(key, JSON.stringify(valueToStore));
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
   };
 
   return [storedValue, setValue];

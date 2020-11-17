@@ -31,10 +31,11 @@ const Home: NextPage<{ className?: string }> = ({ className }) => {
   // sessionが存在し、localstorageにカウンターが存在するときにはカウンターをdbに保存する
   useEffect(() => {
     const moveLocalToRemote = async () => {
-      for (const c of local.counters) {
-        await remote.addCounter(c);
-      }
+      //先にclearする
       local.clearCounters();
+
+      // clearしたがここではまだcountersは参照できる
+      await remote.addCounters(local.counters);
     };
 
     if (session && local.counters.length > 0) {
