@@ -3,19 +3,22 @@ import styled from "styled-components";
 import { Header } from "../components/Header";
 import { Main } from "../components/Main";
 import { AddCounterButton } from "../components/AddCounterButton";
-import { useCounters } from "../util/hooks";
-import { getSession } from "next-auth/client";
-import { GetServerSideProps, NextPage } from "next";
+import {
+  useCountersResults,
+  useLocalCounters,
+  useRemoteCounters,
+} from "../util/hooks";
+import { useSession } from "next-auth/client";
+import { NextPage } from "next";
 import { AnimatePresence, motion } from "framer-motion";
 import { Counter } from "../components/Counter";
 
-// サーバーサイドでsessionをProviderに入れて、すでにログインされているときにクライアント側でundefinedを返さないようにする
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const session = await getSession({ req });
-  return { props: { session } };
-};
-
 const Home: NextPage<{ className?: string }> = ({ className }) => {
+  const [session] = useSession();
+  console.log(session);
+
+  const remote = useRemoteCounters();
+  const local = useLocalCounters();
   const {
     counters,
     addCounter,
@@ -24,7 +27,7 @@ const Home: NextPage<{ className?: string }> = ({ className }) => {
     countUp,
     countDown,
     resetCount,
-  } = useCounters();
+  }: useCountersResults = session ? remote : local;
 
   return (
     <div className={className}>
