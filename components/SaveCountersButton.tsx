@@ -1,5 +1,5 @@
 import React from "react";
-import SaveIcon from "@material-ui/icons/Save";
+import BackupIcon from "@material-ui/icons/Backup";
 import { Fab, Tooltip, Typography } from "@material-ui/core";
 
 type Props = {
@@ -13,9 +13,9 @@ const Component: React.FC<Props> = ({ className, onSave }) => {
   };
 
   return (
-    <Tooltip title={<Typography>保存</Typography>} placement="left">
+    <Tooltip title={<Typography>アカウントに保存</Typography>} placement="left">
       <Fab color="primary" onClick={save} className={className}>
-        <SaveIcon></SaveIcon>
+        <BackupIcon></BackupIcon>
       </Fab>
     </Tooltip>
   );

@@ -75,8 +75,10 @@ const Home: NextPage<{ className?: string }> = ({ className }) => {
           </AnimatePresence>
         </div>
       </Main>
+      {session && (
+        <SaveCountersButton onSave={() => {}} className="saveCounters" />
+      )}
       <AddCounterButton onAddCounter={addCounter} className="addCounter" />
-      <SaveCountersButton onSave={() => {}} className="saveCounters" />
     </div>
   );
 };
