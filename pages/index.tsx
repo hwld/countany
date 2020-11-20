@@ -3,22 +3,13 @@ import styled from "styled-components";
 import { Header } from "../components/Header";
 import { Main } from "../components/Main";
 import { AddCounterButton } from "../components/AddCounterButton";
-import {
-  useCountersResults,
-  useLocalCounters,
-  useRemoteCounters,
-} from "../util/hooks";
-import { useSession } from "next-auth/client";
+import { useCounters } from "../util/hooks";
 import { NextPage } from "next";
 import { AnimatePresence, motion } from "framer-motion";
 import { Counter } from "../components/Counter";
 import { Alert } from "@material-ui/lab";
 
 const Home: NextPage<{ className?: string }> = ({ className }) => {
-  const [session] = useSession();
-
-  const remote = useRemoteCounters();
-  const local = useLocalCounters();
   const {
     counters,
     error,
@@ -28,21 +19,7 @@ const Home: NextPage<{ className?: string }> = ({ className }) => {
     countUp,
     countDown,
     resetCount,
-  }: useCountersResults = session ? remote : local;
-
-  // sessionが存在し、localstorageにカウンターが存在するときにはカウンターをdbに保存する
-  useEffect(() => {
-    const moveLocalToRemote = async () => {
-      //先にclearしてlocal.counters.lengthが0になるようにする
-      local.clearCounters();
-      await remote.addCounters(local.counters);
-    };
-
-    if (session && local.counters.length > 0) {
-      moveLocalToRemote();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session]);
+  } = useCounters();
 
   return (
     <div className={className}>

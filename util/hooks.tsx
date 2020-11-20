@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useSession } from "next-auth/client";
+import { useEffect, useState } from "react";
 import useSWR from "swr";
 import { CounterFields } from "../components/Counter";
 import { Counter } from "../types/client";
@@ -15,8 +16,35 @@ export type useCountersResults = {
   resetCount: (id: string) => Promise<void>;
 };
 
+// sessionが存在するかによってlocal,remoteストレージを切り替える.
+// 複数の箇所で呼ばれるとエラーが起きる.
+export function useCounters(): useCountersResults {
+  const [session] = useSession();
+
+  const remote = useRemoteCounters();
+  const local = useLocalCounters();
+
+  const useCountersResult: useCountersResults = session ? remote : local;
+
+  // sessionが存在し、localstorageにカウンターが存在するときにはカウンターをdbに保存する
+  useEffect(() => {
+    const moveLocalToRemote = async () => {
+      //先にclearしてlocal.counters.lengthが0になるようにする
+      local.clearCounters();
+      await remote.addCounters(local.counters);
+    };
+
+    if (session && local.counters.length > 0) {
+      moveLocalToRemote();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session]);
+
+  return useCountersResult;
+}
+
 // web apiを使用したバージョン
-export function useRemoteCounters(): useCountersResults & {
+function useRemoteCounters(): useCountersResults & {
   addCounters: (counters: Counter[]) => Promise<void>;
 } {
   const { data: counters = [], mutate } = useSWR<Counter[]>(
@@ -179,7 +207,7 @@ export function useRemoteCounters(): useCountersResults & {
 }
 
 // localStorageを使用したバージョン
-export function useLocalCounters(): useCountersResults & {
+function useLocalCounters(): useCountersResults & {
   clearCounters: () => void;
 } {
   const [counters, setCounters] = useLocalStorage<Counter[]>("counters", []);
