@@ -6,6 +6,7 @@ import { fetcher } from "./fetcher";
 
 export type useCountersResults = {
   counters: Counter[];
+  error: boolean;
   addCounter: (counter: Counter) => Promise<void>;
   removeCounter: (id: string) => Promise<void>;
   editCounter: (id: string, fields: CounterFields) => Promise<void>;
@@ -22,6 +23,7 @@ export function useRemoteCounters(): useCountersResults & {
     "/api/counters",
     fetcher
   );
+  const [error, setError] = useState(false);
 
   const addCounter = async (counter: Counter) => {
     mutate([...counters, counter], false);
@@ -77,24 +79,33 @@ export function useRemoteCounters(): useCountersResults & {
       return;
     }
 
-    mutate(
-      counters.map((counter) => {
-        if (counter.id === id) {
-          const newCounter: Counter = {
-            ...counter,
-            value: counter.value + counter.amount,
-          };
-          return newCounter;
-        }
-        return counter;
-      }),
-      false
-    );
-    await fetcher("/api/counter/update", {
-      id,
-      value: target.value + target.amount,
-    });
-    mutate();
+    try {
+      mutate(
+        counters.map((counter) => {
+          if (counter.id === id) {
+            const newCounter: Counter = {
+              ...counter,
+              value: counter.value + counter.amount,
+            };
+            return newCounter;
+          }
+          return counter;
+        }),
+        false
+      );
+      await fetcher("/api/counter/update", {
+        id,
+        value: target.value + target.amount,
+      });
+      mutate();
+    } catch (error) {
+      setError(true);
+      mutate();
+
+      setTimeout(() => {
+        setError(false);
+      }, 5000);
+    }
   };
 
   const countDown = async (id: string) => {
@@ -106,24 +117,29 @@ export function useRemoteCounters(): useCountersResults & {
       return;
     }
 
-    mutate(
-      counters.map((counter) => {
-        if (counter.id === id) {
-          const newCounter: Counter = {
-            ...counter,
-            value: counter.value - counter.amount,
-          };
-          return newCounter;
-        }
-        return counter;
-      }),
-      false
-    );
-    await fetcher("/api/counter/update", {
-      id,
-      value: target.value - target.amount,
-    });
-    mutate();
+    try {
+      mutate(
+        counters.map((counter) => {
+          if (counter.id === id) {
+            const newCounter: Counter = {
+              ...counter,
+              value: counter.value - counter.amount,
+            };
+            return newCounter;
+          }
+          return counter;
+        }),
+        false
+      );
+      await fetcher("/api/counter/update", {
+        id,
+        value: target.value - target.amount,
+      });
+      mutate();
+    } catch (error) {
+      setError(true);
+      mutate();
+    }
   };
 
   const resetCount = async (id: string) => {
@@ -151,6 +167,7 @@ export function useRemoteCounters(): useCountersResults & {
 
   return {
     counters: counters || [],
+    error,
     addCounter,
     addCounters,
     removeCounter,
@@ -166,71 +183,122 @@ export function useLocalCounters(): useCountersResults & {
   clearCounters: () => void;
 } {
   const [counters, setCounters] = useLocalStorage<Counter[]>("counters", []);
+  const [error, setError] = useState(false);
 
   const addCounter = async (counter: Counter) => {
-    setCounters((counters) => [...counters, counter]);
+    try {
+      setCounters((counters) => [...counters, counter]);
+    } catch (error) {
+      setError(true);
+      setTimeout(() => {
+        setError(false);
+      }, 5000);
+    }
   };
 
   const removeCounter = async (id: string) => {
-    setCounters((counters) => counters.filter((c) => c.id !== id));
+    try {
+      setCounters((counters) => counters.filter((c) => c.id !== id));
+    } catch (error) {
+      setError(true);
+      setTimeout(() => {
+        setError(false);
+      }, 5000);
+    }
   };
 
   const editCounter = async (id: string, fields: CounterFields) => {
-    setCounters((counters) =>
-      counters.map((counter) => {
-        if (counter.id === id) {
-          return { ...counter, ...fields };
-        }
-        return counter;
-      })
-    );
+    try {
+      setCounters((counters) =>
+        counters.map((counter) => {
+          if (counter.id === id) {
+            return { ...counter, ...fields };
+          }
+          return counter;
+        })
+      );
+    } catch (error) {
+      setError(true);
+      setTimeout(() => {
+        setError(false);
+      }, 5000);
+    }
   };
 
   const countUp = async (id: string) => {
-    setCounters((counters) =>
-      counters.map((counter) => {
-        if (counter.id === id) {
-          const newCounts = counter.value + counter.amount;
-          if (newCounts <= counter.maxValue) {
-            return { ...counter, value: newCounts };
+    try {
+      setCounters((counters) =>
+        counters.map((counter) => {
+          if (counter.id === id) {
+            const newCounts = counter.value + counter.amount;
+            if (newCounts <= counter.maxValue) {
+              return { ...counter, value: newCounts };
+            }
           }
-        }
-        return counter;
-      })
-    );
+          return counter;
+        })
+      );
+    } catch (error) {
+      setError(true);
+      setTimeout(() => {
+        setError(false);
+      }, 5000);
+    }
   };
 
   const countDown = async (id: string) => {
-    setCounters((counters) =>
-      counters.map((counter) => {
-        if (counter.id === id) {
-          const newCounts = counter.value - counter.amount;
-          if (newCounts >= counter.minValue) {
-            return { ...counter, value: newCounts };
+    try {
+      setCounters((counters) =>
+        counters.map((counter) => {
+          if (counter.id === id) {
+            const newCounts = counter.value - counter.amount;
+            if (newCounts >= counter.minValue) {
+              return { ...counter, value: newCounts };
+            }
           }
-        }
-        return counter;
-      })
-    );
+          return counter;
+        })
+      );
+    } catch (error) {
+      setError(true);
+      setTimeout(() => {
+        setError(false);
+      }, 5000);
+    }
   };
 
   const resetCount = async (id: string) => {
-    setCounters((counters) =>
-      counters.map((counter) => {
-        if (counter.id === id) {
-          return { ...counter, value: counter.startWith };
-        }
-        return counter;
-      })
-    );
+    try {
+      setCounters((counters) =>
+        counters.map((counter) => {
+          if (counter.id === id) {
+            return { ...counter, value: counter.startWith };
+          }
+          return counter;
+        })
+      );
+    } catch (error) {
+      setError(true);
+      setTimeout(() => {
+        setError(false);
+      }, 5000);
+    }
   };
 
   const clearCounters = () => {
-    setCounters([]);
+    try {
+      setCounters([]);
+    } catch (error) {
+      setError(true);
+      setTimeout(() => {
+        setError(false);
+      }, 5000);
+    }
   };
 
   return {
     counters,
+    error,
     addCounter,
     removeCounter,
     editCounter,
@@ -256,12 +324,9 @@ function useLocalStorage<T>(
   });
 
   const setValue = (value: ((s: T) => T) | T) => {
-    try {
-      const valueToStore =
-        value instanceof Function ? value(storedValue) : value;
-      setStoredValue(valueToStore);
-      window.localStorage.setItem(key, JSON.stringify(valueToStore));
-    } catch (error) {}
+    const valueToStore = value instanceof Function ? value(storedValue) : value;
+    setStoredValue(valueToStore);
+    window.localStorage.setItem(key, JSON.stringify(valueToStore));
   };
 
   return [storedValue, setValue];

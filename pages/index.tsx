@@ -12,7 +12,7 @@ import { useSession } from "next-auth/client";
 import { NextPage } from "next";
 import { AnimatePresence, motion } from "framer-motion";
 import { Counter } from "../components/Counter";
-import { SaveCountersButton } from "../components/SaveCountersButton";
+import { Alert } from "@material-ui/lab";
 
 const Home: NextPage<{ className?: string }> = ({ className }) => {
   const [session] = useSession();
@@ -21,6 +21,7 @@ const Home: NextPage<{ className?: string }> = ({ className }) => {
   const local = useLocalCounters();
   const {
     counters,
+    error,
     addCounter,
     removeCounter,
     editCounter,
@@ -32,17 +33,14 @@ const Home: NextPage<{ className?: string }> = ({ className }) => {
   // sessionが存在し、localstorageにカウンターが存在するときにはカウンターをdbに保存する
   useEffect(() => {
     const moveLocalToRemote = async () => {
-      //先にclearする
+      //先にclearしてlocal.counters.lengthが0になるようにする
       local.clearCounters();
-
-      // clearしたがここではまだcountersは参照できる
       await remote.addCounters(local.counters);
     };
 
     if (session && local.counters.length > 0) {
       moveLocalToRemote();
     }
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
 
@@ -50,6 +48,13 @@ const Home: NextPage<{ className?: string }> = ({ className }) => {
     <div className={className}>
       <Header />
       <Main>
+        {error && (
+          <div className="alertContainer">
+            <Alert className="errorAlert" severity="error">
+              エラーが発生しました。
+            </Alert>
+          </div>
+        )}
         <div className="counterContainer">
           <AnimatePresence>
             {counters.map((counter) => (
@@ -75,9 +80,6 @@ const Home: NextPage<{ className?: string }> = ({ className }) => {
           </AnimatePresence>
         </div>
       </Main>
-      {session && (
-        <SaveCountersButton onSave={() => {}} className="saveCounters" />
-      )}
       <AddCounterButton onAddCounter={addCounter} className="addCounter" />
     </div>
   );
@@ -89,8 +91,20 @@ const StyledHome = styled(Home)`
     return props.theme.palette.background.default;
   }};
 
+  & .alertContainer {
+    position: fixed;
+    width: 100%;
+    height: 50px;
+    z-index: 1;
+
+    & .errorAlert {
+      width: 50%;
+      margin: 15px auto;
+    }
+  }
+
   & .counterContainer {
-    margin: 20px 100px 0 20px;
+    margin: 65px 100px 0 20px;
     display: flex;
     flex-wrap: wrap;
 
@@ -103,12 +117,6 @@ const StyledHome = styled(Home)`
     position: absolute;
     right: 40px;
     bottom: 40px;
-  }
-
-  & .saveCounters {
-    position: absolute;
-    right: 40px;
-    bottom: 110px;
   }
 `;
 
