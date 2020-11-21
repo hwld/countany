@@ -1,11 +1,20 @@
 import { PrismaClient } from "@prisma/client";
 import { NextApiHandler } from "next";
 import { getSession } from "next-auth/client";
+import { Counter } from "../../../types/client";
 
 const prisma = new PrismaClient();
 
 const createHandler: NextApiHandler = async (req, res) => {
-  const { id, value, name, startWith, amount, maxValue, minValue } = req.body;
+  const {
+    id,
+    value,
+    name,
+    startWith,
+    amount,
+    maxValue,
+    minValue,
+  }: Counter = req.body;
 
   const session = await getSession({ req });
 

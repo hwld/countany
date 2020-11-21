@@ -64,16 +64,9 @@ function useRemoteCounters(): useCountersResults & {
     mutate();
   };
 
-  const addCounters = async (cs: Counter[]) => {
-    mutate([...counters, ...cs], false);
-    for (const c of cs) {
-      await fetcher("/api/counter/create", c).catch(() => {
-        setError(true);
-        setTimeout(() => {
-          setError(false);
-        }, 5000);
-      });
-    }
+  const addCounters = async (newCounters: Counter[]) => {
+    mutate([...counters, ...newCounters], false);
+    await fetcher("/api/counters/bulk_create", newCounters);
     mutate();
   };
 
