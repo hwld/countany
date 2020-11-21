@@ -17,7 +17,7 @@ export type useCountersResults = {
 };
 
 // sessionが存在するかによってlocal,remoteストレージを切り替える.
-// 複数の箇所で呼ばれるとエラーが起きる.
+// 複数の箇所で呼ばれるとログイン時のuseEffectでエラーが起きる.
 export function useCounters(): useCountersResults {
   const [session] = useSession();
 
@@ -29,7 +29,7 @@ export function useCounters(): useCountersResults {
   // sessionが存在し、localstorageにカウンターが存在するときにはカウンターをdbに保存する
   useEffect(() => {
     const moveLocalToRemote = async () => {
-      //先にclearしてlocal.counters.lengthが0になるようにする
+      //先にclearして次のレンダリングでlocal.counters.lengthが0になるようにする
       local.clearCounters();
       await remote.addCounters(local.counters);
     };
@@ -55,14 +55,24 @@ function useRemoteCounters(): useCountersResults & {
 
   const addCounter = async (counter: Counter) => {
     mutate([...counters, counter], false);
-    await fetcher("/api/counter/create", counter);
+    await fetcher("/api/counter/create", counter).catch(() => {
+      setError(true);
+      setTimeout(() => {
+        setError(false);
+      }, 5000);
+    });
     mutate();
   };
 
   const addCounters = async (cs: Counter[]) => {
     mutate([...counters, ...cs], false);
     for (const c of cs) {
-      await fetcher("/api/counter/create", c);
+      await fetcher("/api/counter/create", c).catch(() => {
+        setError(true);
+        setTimeout(() => {
+          setError(false);
+        }, 5000);
+      });
     }
     mutate();
   };
@@ -72,7 +82,12 @@ function useRemoteCounters(): useCountersResults & {
       counters.filter((c) => c.id !== id),
       false
     );
-    await fetcher("/api/counter/delete", { id });
+    await fetcher("/api/counter/delete", { id }).catch(() => {
+      setError(true);
+      setTimeout(() => {
+        setError(false);
+      }, 5000);
+    });
     mutate();
   };
 
@@ -94,7 +109,12 @@ function useRemoteCounters(): useCountersResults & {
       }),
       false
     );
-    await fetcher("/api/counter/update", { id, ...fields });
+    await fetcher("/api/counter/update", { id, ...fields }).catch(() => {
+      setError(true);
+      setTimeout(() => {
+        setError(false);
+      }, 5000);
+    });
     mutate();
   };
 
@@ -106,34 +126,29 @@ function useRemoteCounters(): useCountersResults & {
     if (target.value + target.amount > target.maxValue) {
       return;
     }
-
-    try {
-      mutate(
-        counters.map((counter) => {
-          if (counter.id === id) {
-            const newCounter: Counter = {
-              ...counter,
-              value: counter.value + counter.amount,
-            };
-            return newCounter;
-          }
-          return counter;
-        }),
-        false
-      );
-      await fetcher("/api/counter/update", {
-        id,
-        value: target.value + target.amount,
-      });
-      mutate();
-    } catch (error) {
+    mutate(
+      counters.map((counter) => {
+        if (counter.id === id) {
+          const newCounter: Counter = {
+            ...counter,
+            value: counter.value + counter.amount,
+          };
+          return newCounter;
+        }
+        return counter;
+      }),
+      false
+    );
+    await fetcher("/api/counter/update", {
+      id,
+      value: target.value + target.amount,
+    }).catch(() => {
       setError(true);
-      mutate();
-
       setTimeout(() => {
         setError(false);
       }, 5000);
-    }
+    });
+    mutate();
   };
 
   const countDown = async (id: string) => {
@@ -145,29 +160,29 @@ function useRemoteCounters(): useCountersResults & {
       return;
     }
 
-    try {
-      mutate(
-        counters.map((counter) => {
-          if (counter.id === id) {
-            const newCounter: Counter = {
-              ...counter,
-              value: counter.value - counter.amount,
-            };
-            return newCounter;
-          }
-          return counter;
-        }),
-        false
-      );
-      await fetcher("/api/counter/update", {
-        id,
-        value: target.value - target.amount,
-      });
-      mutate();
-    } catch (error) {
+    mutate(
+      counters.map((counter) => {
+        if (counter.id === id) {
+          const newCounter: Counter = {
+            ...counter,
+            value: counter.value - counter.amount,
+          };
+          return newCounter;
+        }
+        return counter;
+      }),
+      false
+    );
+    await fetcher("/api/counter/update", {
+      id,
+      value: target.value - target.amount,
+    }).catch(() => {
       setError(true);
-      mutate();
-    }
+      setTimeout(() => {
+        setError(false);
+      }, 5000);
+    });
+    mutate();
   };
 
   const resetCount = async (id: string) => {
@@ -189,7 +204,12 @@ function useRemoteCounters(): useCountersResults & {
       }),
       false
     );
-    await fetcher("/api/counter/update", { id, value: 0 });
+    await fetcher("/api/counter/update", { id, value: 0 }).catch(() => {
+      setError(true);
+      setTimeout(() => {
+        setError(false);
+      }, 5000);
+    });
     mutate();
   };
 
