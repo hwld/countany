@@ -49,6 +49,7 @@ const Component: React.FC<Props> = ({ className, onAddCounter }) => {
         onClose={close}
         TransitionComponent={SlideTransition}
         fullWidth
+        keepMounted
       >
         <DialogTitle>カウンターの追加</DialogTitle>
         <DialogContent>

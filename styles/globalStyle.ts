@@ -14,6 +14,10 @@ export const GlobalStyle = createGlobalStyle`
     text-decoration: none;
   }
 
+  button {
+    cursor: pointer;
+  }
+
   * {
     box-sizing: border-box;
   }

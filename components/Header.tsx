@@ -2,6 +2,7 @@ import { AppBar, Button, Toolbar, Typography } from "@material-ui/core";
 import { signIn, signOut, useSession } from "next-auth/client";
 import React from "react";
 import styled from "styled-components";
+import { AccountButton } from "./AccountButton";
 
 const Component: React.FC<{ className?: string }> = ({ className }) => {
   const [session] = useSession();
@@ -22,9 +23,7 @@ const Component: React.FC<{ className?: string }> = ({ className }) => {
           Countany
         </Typography>
         {session ? (
-          <Button onClick={logout} variant="outlined" color="default">
-            ログアウト
-          </Button>
+          <AccountButton user={session.user} onLogout={logout} />
         ) : (
           <Button onClick={login} variant="outlined" color="default">
             ログイン
