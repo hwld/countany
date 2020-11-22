@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import useSWR from "swr";
 import { CounterFields } from "../components/Counter";
 import { Counter } from "../types/client";
-import { fetcher } from "./fetcher";
+import { Fetcher, fetcher } from "./fetcher";
 
 type _useCountersOperation = {
   addCounter: (counter: Counter) => Promise<void>;
@@ -39,7 +39,7 @@ export function useCounters(): useCountersResults {
   const [error, setError] = useState<useCountersError>(null);
 
   const [session] = useSession();
-  const remote = _useRemoteCounters();
+  const remote = _useRemoteCounters(fetcher);
   const local = _useLocalCounters();
 
   const _useCountersResult: _useCountersResults = session ? remote : local;
@@ -58,7 +58,6 @@ export function useCounters(): useCountersResults {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
 
-  // countersの操作をエラーハンドリングする
   const addCounter: _useCountersResults["addCounter"] = (counter) =>
     _useCountersResult.addCounter(counter).catch(() => {
       setError({ type: "addCounter" });
@@ -120,7 +119,7 @@ export function useCounters(): useCountersResults {
 }
 
 // web apiを使用したバージョン
-function _useRemoteCounters(): _useRemoteCountersResults {
+function _useRemoteCounters(fetcher: Fetcher): _useRemoteCountersResults {
   const { data: counters = [], mutate } = useSWR<Counter[]>(
     "/api/counters",
     fetcher
@@ -130,8 +129,10 @@ function _useRemoteCounters(): _useRemoteCountersResults {
     try {
       mutate([...counters, counter], false);
       await fetcher("/api/counter/create", counter);
-    } finally {
       mutate();
+    } catch (error) {
+      mutate([...counters], false);
+      throw error;
     }
   };
 
@@ -139,8 +140,10 @@ function _useRemoteCounters(): _useRemoteCountersResults {
     try {
       mutate([...counters, ...newCounters], false);
       await fetcher("/api/counters/bulk_create", newCounters);
-    } finally {
       mutate();
+    } catch (error) {
+      mutate([...counters], false);
+      throw error;
     }
   };
 
@@ -151,8 +154,10 @@ function _useRemoteCounters(): _useRemoteCountersResults {
         false
       );
       await fetcher("/api/counter/delete", { id });
-    } finally {
       mutate();
+    } catch (error) {
+      mutate([...counters], false);
+      throw error;
     }
   };
 
@@ -176,8 +181,10 @@ function _useRemoteCounters(): _useRemoteCountersResults {
         false
       );
       await fetcher("/api/counter/update", { id, ...fields });
-    } finally {
       mutate();
+    } catch (error) {
+      mutate([...counters], false);
+      throw error;
     }
   };
 
@@ -208,8 +215,10 @@ function _useRemoteCounters(): _useRemoteCountersResults {
         id,
         value: target.value + target.amount,
       });
-    } finally {
       mutate();
+    } catch (error) {
+      mutate([...counters], false);
+      throw error;
     }
   };
 
@@ -240,8 +249,10 @@ function _useRemoteCounters(): _useRemoteCountersResults {
         id,
         value: target.value - target.amount,
       });
-    } finally {
       mutate();
+    } catch (error) {
+      mutate([...counters], false);
+      throw error;
     }
   };
 
@@ -266,8 +277,10 @@ function _useRemoteCounters(): _useRemoteCountersResults {
         false
       );
       await fetcher("/api/counter/update", { id, value: 0 });
-    } finally {
       mutate();
+    } catch (error) {
+      mutate([...counters], false);
+      throw error;
     }
   };
 

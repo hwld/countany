@@ -1,5 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/ban-types
-type Fetcher = (url: string, data?: Object) => Promise<any>;
+export type Fetcher = <T>(url: string, data?: T) => Promise<T>;
 
 export const fetcher: Fetcher = (url, data) =>
   fetch(window.location.origin + url, {
