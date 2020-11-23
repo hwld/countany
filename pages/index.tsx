@@ -9,6 +9,7 @@ import { Counter } from "../components/Counter";
 import Head from "next/head";
 import { ErrorAlert } from "../components/ErrorAlert";
 import { useCounters } from "../hooks/useCounters";
+import { Typography } from "@material-ui/core";
 
 const Home: NextPage<{ className?: string }> = ({ className }) => {
   const {
