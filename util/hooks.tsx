@@ -24,6 +24,7 @@ type _useRemoteCountersResults = _useCountersResults & {
 
 type _useLocalCountersResults = _useCountersResults & {
   _clearCounters: () => void;
+  _existsCountersInLocalStorage: () => boolean;
 };
 
 export type useCountersErrorType = keyof _useCountersOperation;
@@ -34,11 +35,10 @@ export type useCountersResults = _useCountersResults & {
 };
 
 // sessionが存在するかによってlocal,remoteストレージを切り替える.
-// 複数の箇所で呼ばれるとログイン時のuseEffectでエラーが起きる.
 export function useCounters(): useCountersResults {
   const [error, setError] = useState<useCountersError>(null);
 
-  const [session] = useSession();
+  const session = Boolean(useSession()[0]);
   const remote = _useRemoteCounters(fetcher);
   const local = _useLocalCounters();
 
@@ -48,11 +48,13 @@ export function useCounters(): useCountersResults {
   useEffect(() => {
     const moveLocalToRemote = async () => {
       //先にclearして次のレンダリングでlocal.counters.lengthが0になるようにする
+      // awaitの後にするとプロミスが解決されないうちに再レンダリングされたときに二回moveされる
       local._clearCounters();
       await remote._addCounters(local.counters);
     };
 
-    if (session && local.counters.length > 0) {
+    // localStoragenに直接アクセスしてカウンターの存在を確認する。
+    if (session && !local._existsCountersInLocalStorage()) {
       moveLocalToRemote();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -298,7 +300,9 @@ function _useRemoteCounters(fetcher: Fetcher): _useRemoteCountersResults {
 
 // localStorageを使用したバージョン
 function _useLocalCounters(): _useLocalCountersResults {
-  const [counters, setCounters] = useLocalStorage<Counter[]>("counters", []);
+  const [counters, setCounters, getCountersDirectly] = useLocalStorage<
+    Counter[]
+  >("counters", []);
 
   const addCounter = async (counter: Counter) => {
     setCounters((counters) => [...counters, counter]);
@@ -358,6 +362,10 @@ function _useLocalCounters(): _useLocalCountersResults {
     );
   };
 
+  const _existsCountersInLocalStorage = () => {
+    return getCountersDirectly().length === 0;
+  };
+
   const _clearCounters = () => {
     setCounters([]);
   };
@@ -371,6 +379,7 @@ function _useLocalCounters(): _useLocalCountersResults {
     countDown,
     resetCount,
     _clearCounters,
+    _existsCountersInLocalStorage,
   };
 }
 
@@ -378,7 +387,7 @@ function _useLocalCounters(): _useLocalCountersResults {
 function useLocalStorage<T>(
   key: string,
   initialValue: T
-): [T, (value: ((s: T) => T) | T) => void] {
+): [T, (value: ((s: T) => T) | T) => void, () => T] {
   const [storedValue, setStoredValue] = useState<T>(() => {
     try {
       const item = window.localStorage.getItem(key);
@@ -394,5 +403,15 @@ function useLocalStorage<T>(
     window.localStorage.setItem(key, JSON.stringify(valueToStore));
   };
 
-  return [storedValue, setValue];
+  // 直接localStorageから値を取得する。
+  const getValueDirectly = () => {
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      return initialValue;
+    }
+  };
+
+  return [storedValue, setValue, getValueDirectly];
 }

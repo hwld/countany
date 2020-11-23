@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import LogoutIcon from "@material-ui/icons/ExitToApp";
 
-type Props = { user: User; onLogout: () => void; className: string };
+type Props = { user: User; onLogout: () => void; className?: string };
 
 const Component: React.FC<Props> = ({ user, onLogout, className }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
