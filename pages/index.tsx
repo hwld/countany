@@ -3,12 +3,12 @@ import styled from "styled-components";
 import { Header } from "../components/Header";
 import { Main } from "../components/Main";
 import { AddCounterButton } from "../components/AddCounterButton";
-import { useCounters } from "../util/hooks";
 import { NextPage } from "next";
 import { AnimatePresence, motion } from "framer-motion";
 import { Counter } from "../components/Counter";
 import Head from "next/head";
 import { ErrorAlert } from "../components/ErrorAlert";
+import { useCounters } from "../hooks/useCounters";
 
 const Home: NextPage<{ className?: string }> = ({ className }) => {
   const {
