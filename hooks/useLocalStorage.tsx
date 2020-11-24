@@ -10,7 +10,8 @@ export function useLocalStorage<T>(
   key: string,
   initialValue: T
 ): [T, (value: ((s: T) => T) | T) => void, () => T] {
-  const [storedValue, setStoredValue] = useState<T>(() => {
+  // localStorageにあるデータソースからのデータを保管するのでbufferという名前をつけた。
+  const [buffer, setBuffer] = useState<T>(() => {
     try {
       const item = window.localStorage.getItem(key);
       return item ? JSON.parse(item) : initialValue;
@@ -19,16 +20,17 @@ export function useLocalStorage<T>(
     }
   });
 
+  // localStorageとbuffer両方をセットする
   const setValue = (value: ((s: T) => T) | T) => {
-    const valueToStore = value instanceof Function ? value(storedValue) : value;
+    const valueToStore = value instanceof Function ? value(buffer) : value;
     window.localStorage.setItem(key, JSON.stringify(valueToStore));
 
     // 同一keyを持つhookすべてを更新する
     UPDATERS[key]?.forEach((updater) => updater(valueToStore));
   };
 
-  // 直接localStorageから値を取得する。
-  const getValueDirectly = () => {
+  // localStorageから直接値を取得する。
+  const getFromLocalStorage = () => {
     try {
       const item = window.localStorage.getItem(key);
       return item ? JSON.parse(item) : initialValue;
@@ -42,18 +44,16 @@ export function useLocalStorage<T>(
     if (UPDATERS[key] === undefined) {
       UPDATERS[key] = [];
     }
-    UPDATERS[key]?.push(setStoredValue);
-    console.log(UPDATERS);
+    UPDATERS[key]?.push(setBuffer);
 
     return () => {
       if (UPDATERS[key] === undefined) {
         return;
       }
-      const index = UPDATERS[key]?.indexOf(setStoredValue) as number;
+      const index = UPDATERS[key]?.indexOf(setBuffer) as number;
       UPDATERS[key]?.splice(index, 1);
-      console.log(UPDATERS);
     };
   }, [key]);
 
-  return [storedValue, setValue, getValueDirectly];
+  return [buffer, setValue, getFromLocalStorage];
 }

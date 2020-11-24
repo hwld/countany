@@ -24,20 +24,20 @@ type _useRemoteCountersResults = _useCountersResults & {
 };
 
 type _useLocalCountersResults = _useCountersResults & {
+  _getCountersFromDataSource: () => Counter[];
   _clearCounters: () => void;
-  _existsCountersInLocalStorage: () => boolean;
 };
 
 export type useCountersErrorType = keyof _useCountersOperation;
-export type useCountersError = null | { type: useCountersErrorType };
+type _useCountersError = null | { type: useCountersErrorType };
 
 export type useCountersResults = _useCountersResults & {
-  error: useCountersError;
+  error: _useCountersError;
 };
 
 // sessionが存在するかによってlocal,remoteストレージを切り替える.
 export function useCounters(): useCountersResults {
-  const [error, setError] = useState<useCountersError>(null);
+  const [error, setError] = useState<_useCountersError>(null);
 
   const session = Boolean(useSession()[0]);
   const remote = _useRemoteCounters(fetcher);
@@ -45,17 +45,25 @@ export function useCounters(): useCountersResults {
 
   const _useCountersResult: _useCountersResults = session ? remote : local;
 
-  // sessionが存在し、localstorageにカウンターが存在するときにはカウンターをdbに保存する
+  // sessionが存在し、localのDataSourceにカウンターが存在するときにはカウンターをdbに保存する
   useEffect(() => {
     const moveLocalToRemote = async () => {
-      //先にclearして次のレンダリングでlocal.counters.lengthが0になるようにする
+      const countersInDataSource = local._getCountersFromDataSource();
       // awaitの後にするとプロミスが解決されないうちに再レンダリングされたときに二回moveされる
       local._clearCounters();
-      await remote._addCounters(local.counters);
+      await remote._addCounters(countersInDataSource);
     };
 
-    // localStoragenに直接アクセスしてカウンターの存在を確認する。
-    if (session && !local._existsCountersInLocalStorage()) {
+    // dataSourceに直接アクセスしてカウンターの存在を確認する。
+    //
+    // local.counters.lengthを使用すると、複数のuseCountersがuseEffectを実行したときに、
+    // 一つのuseEffectがlocal._clearCountersを呼び出した後のuseEffectではcountersの変更が反映されていないので、
+    // 複数回moveLocalToRemoteが呼ばれる可能性があったので、直接dataSourceを参照した。
+    // local.countersをrefを使用して最新のデータを参照できるようにしようとも思ったが、その複雑性をhookの外に出したくなかったため、
+    // 抜け穴的な解法にはなるが、dataSourceを直接参照する専用のメソッドを作成した。
+    //
+    // useCountersを1度だけ呼び出し可能にするならこのような複雑なコードは必要がなくなる。
+    if (session && local._getCountersFromDataSource().length > 0) {
       moveLocalToRemote();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -301,7 +309,7 @@ function _useRemoteCounters(fetcher: Fetcher): _useRemoteCountersResults {
 
 // localStorageを使用したバージョン
 function _useLocalCounters(): _useLocalCountersResults {
-  const [counters, setCounters, getCountersDirectly] = useLocalStorage<
+  const [countersBuffer, setCounters, getFromDataSource] = useLocalStorage<
     Counter[]
   >("counters", []);
 
@@ -363,23 +371,19 @@ function _useLocalCounters(): _useLocalCountersResults {
     );
   };
 
-  const _existsCountersInLocalStorage = () => {
-    return getCountersDirectly().length === 0;
-  };
-
   const _clearCounters = () => {
     setCounters([]);
   };
 
   return {
-    counters,
+    counters: countersBuffer,
     addCounter,
     removeCounter,
     editCounter,
     countUp,
     countDown,
     resetCount,
+    _getCountersFromDataSource: getFromDataSource,
     _clearCounters,
-    _existsCountersInLocalStorage,
   };
 }
