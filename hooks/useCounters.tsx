@@ -1,12 +1,14 @@
-import { useSession } from "next-auth/client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import useSWR from "swr";
-import { useLocalStorage } from ".";
+
 import { CounterFields } from "../components/Counter";
 import { Counter } from "../types/client";
-import { Fetcher, fetcher } from "../util/fetcher";
+import { Fetcher } from "../util/fetcher";
+import { useLocalStorage } from "./useLocalStorage";
 
-type _useCountersOperation = {
+export type useCountersResult = {
+  counters: Counter[];
+  error: useCountersError;
   addCounter: (counter: Counter) => Promise<void>;
   removeCounter: (id: string) => Promise<void>;
   editCounter: (id: string, fields: CounterFields) => Promise<void>;
@@ -15,126 +17,30 @@ type _useCountersOperation = {
   resetCount: (id: string) => Promise<void>;
 };
 
-type _useCountersResults = {
-  counters: Counter[];
-} & _useCountersOperation;
-
-type _useRemoteCountersResults = _useCountersResults & {
-  _addCounters: (counters: Counter[]) => Promise<void>;
+type useRemoteCountersResult = useCountersResult & {
+  addCounters: (counters: Counter[]) => Promise<void>;
 };
 
-type _useLocalCountersResults = _useCountersResults & {
-  _getCountersFromDataSource: () => Counter[];
-  _clearCounters: () => void;
+type useLocalCountersResult = useCountersResult & {
+  clearCounters: () => void;
 };
 
-export type useCountersErrorType = keyof _useCountersOperation;
-type _useCountersError = null | { type: useCountersErrorType };
-
-export type useCountersResults = _useCountersResults & {
-  error: _useCountersError;
-};
-
-// sessionが存在するかによってlocal,remoteストレージを切り替える.
-export function useCounters(): useCountersResults {
-  const [error, setError] = useState<_useCountersError>(null);
-
-  const session = Boolean(useSession()[0]);
-  const remote = _useRemoteCounters(fetcher);
-  const local = _useLocalCounters();
-
-  const _useCountersResult: _useCountersResults = session ? remote : local;
-
-  // sessionが存在し、localのDataSourceにカウンターが存在するときにはカウンターをdbに保存する
-  useEffect(() => {
-    const moveLocalToRemote = async () => {
-      const countersInDataSource = local._getCountersFromDataSource();
-      // awaitの後にするとプロミスが解決されないうちに再レンダリングされたときに二回moveされる
-      local._clearCounters();
-      await remote._addCounters(countersInDataSource);
-    };
-
-    // dataSourceに直接アクセスしてカウンターの存在を確認する。
-    //
-    // local.counters.lengthを使用すると、複数のuseCountersがuseEffectを実行したときに、
-    // 一つのuseEffectがlocal._clearCountersを呼び出した後のuseEffectではcountersの変更が反映されていないので、
-    // 複数回moveLocalToRemoteが呼ばれる可能性があったので、直接dataSourceを参照した。
-    // local.countersをrefを使用して最新のデータを参照できるようにしようとも思ったが、その複雑性をhookの外に出したくなかったため、
-    // 抜け穴的な解法にはなるが、dataSourceを直接参照する専用のメソッドを作成した。
-    //
-    // useCountersを1度だけ呼び出し可能にするならこのような複雑なコードは必要がなくなる。
-    if (session && local._getCountersFromDataSource().length > 0) {
-      moveLocalToRemote();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session]);
-
-  const addCounter: _useCountersResults["addCounter"] = (counter) =>
-    _useCountersResult.addCounter(counter).catch(() => {
-      setError({ type: "addCounter" });
-      setTimeout(() => {
-        setError(null);
-      }, 5000);
-    });
-
-  const removeCounter: _useCountersResults["removeCounter"] = (counter) =>
-    _useCountersResult.removeCounter(counter).catch(() => {
-      setError({ type: "removeCounter" });
-      setTimeout(() => {
-        setError(null);
-      }, 5000);
-    });
-
-  const editCounter: _useCountersResults["editCounter"] = (id, fields) =>
-    _useCountersResult.editCounter(id, fields).catch(() => {
-      setError({ type: "editCounter" });
-      setTimeout(() => {
-        setError(null);
-      }, 5000);
-    });
-
-  const countUp: _useCountersResults["countUp"] = (id) =>
-    _useCountersResult.countUp(id).catch(() => {
-      setError({ type: "countUp" });
-      setTimeout(() => {
-        setError(null);
-      }, 5000);
-    });
-
-  const countDown: _useCountersResults["countDown"] = (id) =>
-    _useCountersResult.countDown(id).catch(() => {
-      setError({ type: "countDown" });
-      setTimeout(() => {
-        setError(null);
-      }, 5000);
-    });
-
-  const resetCount: _useCountersResults["resetCount"] = (id) =>
-    _useCountersResult.resetCount(id).catch(() => {
-      setError({ type: "resetCount" });
-      setTimeout(() => {
-        setError(null);
-      }, 5000);
-    });
-
-  return {
-    counters: _useCountersResult.counters,
-    error,
-    addCounter,
-    removeCounter,
-    editCounter,
-    countUp,
-    countDown,
-    resetCount,
-  };
-}
+type useCountersError = null | { message: string };
 
 // web apiを使用したバージョン
-function _useRemoteCounters(fetcher: Fetcher): _useRemoteCountersResults {
+export function useRemoteCounters(fetcher: Fetcher): useRemoteCountersResult {
   const { data: counters = [], mutate } = useSWR<Counter[]>(
     "/api/counters",
     fetcher
   );
+  const [error, setError] = useState<useCountersError>(null);
+
+  const setErrorAndClear = (error: useCountersError, clearTimeout: number) => {
+    setError(error);
+    setTimeout(() => {
+      setError(null);
+    }, clearTimeout);
+  };
 
   const addCounter = async (counter: Counter) => {
     try {
@@ -143,18 +49,24 @@ function _useRemoteCounters(fetcher: Fetcher): _useRemoteCountersResults {
       mutate();
     } catch (error) {
       mutate([...counters], false);
-      throw error;
+      setErrorAndClear(
+        { message: "カウンターの追加でエラーが発生しました。" },
+        5000
+      );
     }
   };
 
-  const _addCounters = async (newCounters: Counter[]) => {
+  const addCounters = async (newCounters: Counter[]) => {
     try {
       mutate([...counters, ...newCounters], false);
       await fetcher("/api/counters/bulk_create", newCounters);
       mutate();
     } catch (error) {
       mutate([...counters], false);
-      throw error;
+      setErrorAndClear(
+        { message: "複数のカウンターの追加でエラーが発生しました。" },
+        5000
+      );
     }
   };
 
@@ -168,7 +80,10 @@ function _useRemoteCounters(fetcher: Fetcher): _useRemoteCountersResults {
       mutate();
     } catch (error) {
       mutate([...counters], false);
-      throw error;
+      setErrorAndClear(
+        { message: "カウンターの削除でエラーが発生しました。" },
+        5000
+      );
     }
   };
 
@@ -195,7 +110,10 @@ function _useRemoteCounters(fetcher: Fetcher): _useRemoteCountersResults {
       mutate();
     } catch (error) {
       mutate([...counters], false);
-      throw error;
+      setErrorAndClear(
+        { message: "カウンターの編集でエラーが発生しました。" },
+        5000
+      );
     }
   };
 
@@ -229,7 +147,10 @@ function _useRemoteCounters(fetcher: Fetcher): _useRemoteCountersResults {
       mutate();
     } catch (error) {
       mutate([...counters], false);
-      throw error;
+      setErrorAndClear(
+        { message: "カウントアップでエラーが発生しました。" },
+        5000
+      );
     }
   };
 
@@ -263,7 +184,10 @@ function _useRemoteCounters(fetcher: Fetcher): _useRemoteCountersResults {
       mutate();
     } catch (error) {
       mutate([...counters], false);
-      throw error;
+      setErrorAndClear(
+        { message: "カウントダウンでエラーが発生しました。" },
+        5000
+      );
     }
   };
 
@@ -291,99 +215,158 @@ function _useRemoteCounters(fetcher: Fetcher): _useRemoteCountersResults {
       mutate();
     } catch (error) {
       mutate([...counters], false);
-      throw error;
+      setErrorAndClear(
+        { message: "カウンターのリセットでエラーが発生しました。" },
+        5000
+      );
     }
   };
 
   return {
-    counters: counters || [],
+    counters,
+    error,
     addCounter,
     removeCounter,
     editCounter,
     countUp,
     countDown,
     resetCount,
-    _addCounters,
+    addCounters,
   };
 }
 
 // localStorageを使用したバージョン
-function _useLocalCounters(): _useLocalCountersResults {
-  const [countersBuffer, setCounters, getFromDataSource] = useLocalStorage<
-    Counter[]
-  >("counters", []);
+export function useLocalCounters(): useLocalCountersResult {
+  const [counters, setCounters] = useLocalStorage<Counter[]>("counters", []);
+  const [error, setError] = useState<useCountersError>(null);
+
+  const setErrorAndClear = (error: useCountersError, clearTimeout: number) => {
+    setError(error);
+    setTimeout(() => {
+      setError(null);
+    }, clearTimeout);
+  };
 
   const addCounter = async (counter: Counter) => {
-    setCounters((counters) => [...counters, counter]);
+    try {
+      setCounters((counters) => [...counters, counter]);
+    } catch (error) {
+      setErrorAndClear(
+        { message: "カウンターの追加でエラーが発生しました。" },
+        5000
+      );
+    }
   };
 
   const removeCounter = async (id: string) => {
-    setCounters((counters) => counters.filter((c) => c.id !== id));
+    try {
+      setCounters((counters) => counters.filter((c) => c.id !== id));
+    } catch (error) {
+      setErrorAndClear(
+        { message: "カウンターの削除でエラーが発生しました。" },
+        5000
+      );
+    }
   };
 
   const editCounter = async (id: string, fields: CounterFields) => {
-    setCounters((counters) =>
-      counters.map((counter) => {
-        if (counter.id === id) {
-          return { ...counter, ...fields };
-        }
-        return counter;
-      })
-    );
+    try {
+      setCounters((counters) =>
+        counters.map((counter) => {
+          if (counter.id === id) {
+            return { ...counter, ...fields };
+          }
+          return counter;
+        })
+      );
+    } catch (error) {
+      setErrorAndClear(
+        { message: "カウンターの編集でエラーが発生しました。" },
+        5000
+      );
+    }
   };
 
   const countUp = async (id: string) => {
-    setCounters((counters) =>
-      counters.map((counter) => {
-        if (counter.id === id) {
-          const newCounts = counter.value + counter.amount;
-          if (newCounts <= counter.maxValue) {
-            return { ...counter, value: newCounts };
+    try {
+      setCounters((counters) =>
+        counters.map((counter) => {
+          if (counter.id === id) {
+            const newCounts = counter.value + counter.amount;
+            if (newCounts <= counter.maxValue) {
+              return { ...counter, value: newCounts };
+            }
           }
-        }
-        return counter;
-      })
-    );
+          return counter;
+        })
+      );
+    } catch (error) {
+      setErrorAndClear(
+        { message: "カウントアップでエラーが発生しました。" },
+        5000
+      );
+    }
   };
 
   const countDown = async (id: string) => {
-    setCounters((counters) =>
-      counters.map((counter) => {
-        if (counter.id === id) {
-          const newCounts = counter.value - counter.amount;
-          if (newCounts >= counter.minValue) {
-            return { ...counter, value: newCounts };
+    try {
+      setCounters((counters) =>
+        counters.map((counter) => {
+          if (counter.id === id) {
+            const newCounts = counter.value - counter.amount;
+            if (newCounts >= counter.minValue) {
+              return { ...counter, value: newCounts };
+            }
           }
-        }
-        return counter;
-      })
-    );
+          return counter;
+        })
+      );
+    } catch (error) {
+      setErrorAndClear(
+        { message: "カウントダウンでエラーが発生しました。" },
+        5000
+      );
+    }
   };
 
   const resetCount = async (id: string) => {
-    setCounters((counters) =>
-      counters.map((counter) => {
-        if (counter.id === id) {
-          return { ...counter, value: counter.startWith };
-        }
-        return counter;
-      })
-    );
+    try {
+      setCounters((counters) =>
+        counters.map((counter) => {
+          if (counter.id === id) {
+            return { ...counter, value: counter.startWith };
+          }
+          return counter;
+        })
+      );
+    } catch (error) {
+      setErrorAndClear(
+        { message: "カウンターのリセットでエラーが発生しました。" },
+        5000
+      );
+    }
   };
 
-  const _clearCounters = () => {
-    setCounters([]);
+  const clearCounters = () => {
+    try {
+      setCounters([]);
+    } catch (error) {
+      setErrorAndClear(
+        { message: "カウンターのクリアでエラーが発生しました。" },
+        5000
+      );
+    }
   };
 
   return {
-    counters: countersBuffer,
+    counters,
+    error,
     addCounter,
     removeCounter,
     editCounter,
     countUp,
     countDown,
     resetCount,
-    _getCountersFromDataSource: getFromDataSource,
-    _clearCounters,
+    clearCounters,
   };
 }

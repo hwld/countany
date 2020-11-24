@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { Header } from "../components/Header";
 import { Main } from "../components/Main";
@@ -7,11 +7,20 @@ import { NextPage } from "next";
 import { AnimatePresence, motion } from "framer-motion";
 import { Counter } from "../components/Counter";
 import Head from "next/head";
-import { ErrorAlert } from "../components/ErrorAlert";
-import { useCounters } from "../hooks/useCounters";
-import { Typography } from "@material-ui/core";
+import { useSession } from "next-auth/client";
+import {
+  useCountersResult,
+  useLocalCounters,
+  useRemoteCounters,
+} from "../hooks/useCounters";
+import { fetcher } from "../util/fetcher";
+import { Alert } from "@material-ui/lab";
 
 const Home: NextPage<{ className?: string }> = ({ className }) => {
+  const session = Boolean(useSession()[0]);
+
+  const remote = useRemoteCounters(fetcher);
+  const local = useLocalCounters();
   const {
     counters,
     error,
@@ -21,7 +30,19 @@ const Home: NextPage<{ className?: string }> = ({ className }) => {
     countUp,
     countDown,
     resetCount,
-  } = useCounters();
+  }: useCountersResult = session ? remote : local;
+
+  useEffect(() => {
+    const moveLocalToRemote = async () => {
+      // 先にclearして、promiseが解決していないときにレンダリングされても正しく動くようにする
+      local.clearCounters();
+      await remote.addCounters(local.counters);
+    };
+    if (session && local.counters.length > 0) {
+      moveLocalToRemote();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session]);
 
   return (
     <>
@@ -32,7 +53,11 @@ const Home: NextPage<{ className?: string }> = ({ className }) => {
         <Header />
         <Main>
           {error && (
-            <ErrorAlert className="errorAlert" errorType={error.type} />
+            <div className="errorAlertContainer">
+              <Alert className="alert" severity="error">
+                {error.message}
+              </Alert>
+            </div>
           )}
           <div className="counterContainer">
             <AnimatePresence>
@@ -71,8 +96,16 @@ const StyledHome = styled(Home)`
     return props.theme.palette.background.default;
   }};
 
-  & .errorAlert {
+  & .errorAlertContainer {
+    position: fixed;
     height: 50px;
+    width: 100%;
+    z-index: 1;
+
+    & .alert {
+      width: 50%;
+      margin: 10px auto;
+    }
   }
 
   & .counterContainer {
