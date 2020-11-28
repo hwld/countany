@@ -1,8 +1,6 @@
-import { PrismaClient } from "@prisma/client";
 import { NextApiHandler } from "next";
 import { getSession } from "next-auth/client";
-
-const prisma = new PrismaClient();
+import prisma from "../../../prisma";
 
 const deleteHandler: NextApiHandler = async (req, res) => {
   const { id } = req.body;

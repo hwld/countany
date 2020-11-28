@@ -11,7 +11,6 @@
     "migrate-prod:up": "dotenv -e prisma/.env.prod -- npx prisma migrate up --experimental",
     "generate-prod": "cp prisma/.env.prod prisma/.env && prisma generate",
     
-    
     "dev": "next dev",
     "build": "next build",
     "start": "next start"

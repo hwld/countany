@@ -1,8 +1,6 @@
-/* eslint-disable @typescript-eslint/ban-types */
-import { PrismaClient } from "@prisma/client";
 import { NextApiHandler } from "next";
 import { getSession } from "next-auth/client";
-const prisma = new PrismaClient();
+import prisma from "../../prisma";
 
 const countersHandler: NextApiHandler = async (req, res) => {
   // ユーザ情報は返さない
