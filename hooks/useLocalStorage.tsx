@@ -9,8 +9,7 @@ const UPDATERS: Record<
 export function useLocalStorage<T>(
   key: string,
   initialValue: T
-): [T, (value: ((s: T) => T) | T) => void, () => T] {
-  // localStorageにあるデータソースからのデータを保管するのでbufferという名前をつけた。
+): [T, (value: ((s: T) => T) | T) => void] {
   const [buffer, setBuffer] = useState<T>(() => {
     try {
       const item = window.localStorage.getItem(key);
@@ -29,16 +28,6 @@ export function useLocalStorage<T>(
     UPDATERS[key]?.forEach((updater) => updater(valueToStore));
   };
 
-  // localStorageから直接値を取得する。
-  const getFromLocalStorage = () => {
-    try {
-      const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
-    } catch (error) {
-      return initialValue;
-    }
-  };
-
   // UPDATERSにuseStateの更新関数を登録、解除する
   useEffect(() => {
     if (UPDATERS[key] === undefined) {
@@ -55,5 +44,5 @@ export function useLocalStorage<T>(
     };
   }, [key]);
 
-  return [buffer, setValue, getFromLocalStorage];
+  return [buffer, setValue];
 }

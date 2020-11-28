@@ -2,7 +2,7 @@ import { TextField, Typography } from "@material-ui/core";
 import React from "react";
 import { useForm } from "react-hook-form";
 import styled from "styled-components";
-import { CounterFields, counterMaxLength, CounterObj } from "./Counter";
+import { CounterFields, CounterObj, COUNTER_MAX_LENGTH } from "./Counter";
 
 type Props = {
   id: string;
@@ -53,8 +53,8 @@ const Component: React.FC<Props> = ({
   };
 
   const counterPatternRule = {
-    value: new RegExp(`^(\\+|-){0,1}\\d{1,${counterMaxLength}}$`),
-    message: `${counterMaxLength}桁以内の数字で入力してください`,
+    value: new RegExp(`^(\\+|-){0,1}\\d{1,${COUNTER_MAX_LENGTH}}$`),
+    message: `${COUNTER_MAX_LENGTH}桁以内の数字で入力してください`,
   };
 
   const validationName = {
