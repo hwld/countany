@@ -10,8 +10,8 @@
 //   provider = "prisma-client-js"
 // }
 
-
-datasource sqlite {
+// migrateするときにdotenvで.env.devと.env.prodを切り替える
+datasource db {
   provider = ["sqlite", "postgresql"]
   url = "***"
 }
