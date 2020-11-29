@@ -29,8 +29,8 @@ const Component: React.FC<Props> = ({
       name: counter?.name,
       startWith: `${counter?.startWith || 0}`,
       amount: `${counter?.amount || 1}`,
-      maxValue: `${counter?.maxValue || 9999999999}`,
-      minValue: `${counter?.minValue || -9999999999}`,
+      maxValue: `${counter?.maxValue || 999999999}`,
+      minValue: `${counter?.minValue || -999999999}`,
     },
   });
 

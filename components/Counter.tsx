@@ -13,17 +13,16 @@ export type CounterFields = {
   name: string;
   startWith: number;
   amount: number; //変化量
-  maxValue: number; //10桁の表示までサポート
-  minValue: number; //10桁
+  maxValue: number;
+  minValue: number;
 };
 
 export type CounterObj = {
-  // マイナス記号を入れて10桁までの表示をサポートしている.
   id: string;
   value: number;
 } & CounterFields;
 
-export const COUNTER_MAX_LENGTH = 10;
+export const COUNTER_MAX_LENGTH = 9;
 
 type Props = {
   className?: string;
