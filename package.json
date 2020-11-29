@@ -6,9 +6,13 @@
     "migrate-dev:save": "dotenv -e prisma/.env.dev -- npx prisma migrate save --experimental",
     "migrate-dev:up": "dotenv -e prisma/.env.dev -- npx prisma migrate up --experimental",
     "generate-dev": "cp prisma/.env.dev prisma/.env && prisma generate",
+    "switch:dev": "yarn migrate-dev:save && yarn migrate-dev:up && yarn generate-dev",
+
     "migrate-prod:save": "dotenv -e prisma/.env.prod -- npx prisma migrate save --experimental",
     "migrate-prod:up": "dotenv -e prisma/.env.prod -- npx prisma migrate up --experimental",
     "generate-prod": "cp prisma/.env.prod prisma/.env && prisma generate",
+    "switch:prod": "yarn migrate-prod:save && yarn migrate-prod:up && yarn generate-prod",
+
     "dev": "next dev",
     "build": "next build",
     "start": "next start"
