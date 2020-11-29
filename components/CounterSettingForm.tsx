@@ -77,6 +77,7 @@ const Component: React.FC<Props> = ({
     );
   };
 
+  // startWith <= maxValue ?
   const validateStartLessOrEqualMax = () => {
     if (Number(getValues(startWith)) <= Number(getValues(maxValue))) {
       if (errors.startWith?.type === validationName.startLessOrEqualMax) {
@@ -92,6 +93,7 @@ const Component: React.FC<Props> = ({
     return false;
   };
 
+  // startWith >= minValue ?
   const validateStartGreaterOrEqualMin = () => {
     if (Number(getValues(startWith)) >= Number(getValues(minValue))) {
       if (errors.startWith?.type === validationName.startGreaterOrEqualMin) {
@@ -107,6 +109,7 @@ const Component: React.FC<Props> = ({
     return false;
   };
 
+  // maxValue >= minValue ?
   const validateMaxGreaterOrEqualMin = () => {
     if (Number(getValues(maxValue)) >= Number(getValues(minValue))) {
       if (errors.maxValue?.type === validationName.maxGreaterOrEqualMin) {

@@ -5,14 +5,14 @@ import prisma from "../../prisma";
 const countersHandler: NextApiHandler = async (req, res) => {
   // ユーザ情報は返さない
   const session = await getSession({ req });
-
   if (!session) {
-    res.json([]);
+    res.statusCode = 403;
+    res.end("セッションが存在しません。");
     return;
   }
 
   const counters = await prisma.counter.findMany({
-    where: { user: { email: session?.user.email } },
+    where: { user: { email: session.user.email } },
     select: {
       id: true,
       value: true,

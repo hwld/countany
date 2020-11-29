@@ -141,7 +141,7 @@ export function useRemoteCounters(fetcher: Fetcher): useRemoteCountersResult {
         false
       );
       await fetcher("/api/counter/update", {
-        id,
+        ...target,
         value: target.value + target.amount,
       });
       mutate();
@@ -178,7 +178,7 @@ export function useRemoteCounters(fetcher: Fetcher): useRemoteCountersResult {
         false
       );
       await fetcher("/api/counter/update", {
-        id,
+        ...target,
         value: target.value - target.amount,
       });
       mutate();
@@ -211,7 +211,7 @@ export function useRemoteCounters(fetcher: Fetcher): useRemoteCountersResult {
         }),
         false
       );
-      await fetcher("/api/counter/update", { id, value: 0 });
+      await fetcher("/api/counter/update", { ...target, value: 0 });
       mutate();
     } catch (error) {
       mutate([...counters], false);
