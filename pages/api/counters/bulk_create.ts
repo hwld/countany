@@ -3,6 +3,7 @@ import { getSession } from "next-auth/client";
 import prisma from "../../../prisma";
 import { Counter } from "../../../types/client";
 import { validateCounter } from "../../../util/validator";
+import { v4 as uuid } from "uuid";
 
 const bulkCreateHandler: NextApiHandler = async (req, res) => {
   const counters: Counter[] = req.body;
@@ -25,7 +26,7 @@ const bulkCreateHandler: NextApiHandler = async (req, res) => {
   for (const counter of counters) {
     await prisma.counter.create({
       data: {
-        id: counter.id,
+        id: uuid(),
         value: counter.value,
         name: counter.name,
         startWith: counter.startWith,

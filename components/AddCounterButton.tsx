@@ -32,8 +32,7 @@ const Component: React.FC<Props> = ({ className, onAddCounter }) => {
   };
 
   const handleSubmit = (fields: CounterFields) => {
-    const id = Math.random().toString();
-    onAddCounter({ id, value: fields.startWith, ...fields });
+    onAddCounter({ id: "", value: fields.startWith, ...fields });
     setIsOpen(false);
   };
 

@@ -2,9 +2,7 @@ import { NextApiHandler } from "next";
 import NextAuth, { InitOptions } from "next-auth";
 import Adapters from "next-auth/adapters";
 import Providers from "next-auth/providers";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "../../../prisma";
 
 const options: InitOptions = {
   providers: [

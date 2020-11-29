@@ -1,10 +1,10 @@
 import { useState } from "react";
 import useSWR from "swr";
-
 import { CounterFields } from "../components/Counter";
 import { Counter } from "../types/client";
 import { Fetcher } from "../util/fetcher";
 import { useLocalStorage } from "./useLocalStorage";
+import { v4 as uuid } from "uuid";
 
 export type useCountersResult = {
   counters: Counter[];
@@ -44,8 +44,9 @@ export function useRemoteCounters(fetcher: Fetcher): useRemoteCountersResult {
 
   const addCounter = async (counter: Counter) => {
     try {
-      mutate([...counters, counter], false);
-      await fetcher("/api/counter/create", counter);
+      const newCounter = { ...counter, id: "" };
+      // mutate([...counters, newCounter], false);
+      await fetcher("/api/counter/create", newCounter);
       mutate();
     } catch (error) {
       mutate([...counters], false);
@@ -56,10 +57,12 @@ export function useRemoteCounters(fetcher: Fetcher): useRemoteCountersResult {
     }
   };
 
-  const addCounters = async (newCounters: Counter[]) => {
+  const addCounters = async (counters: Counter[]) => {
     try {
+      const newCounters = counters.map((c) => ({ ...c, id: "" }));
       mutate([...counters, ...newCounters], false);
       await fetcher("/api/counters/bulk_create", newCounters);
+      //ここでidがセットされたcountersが反映される
       mutate();
     } catch (error) {
       mutate([...counters], false);
@@ -72,6 +75,9 @@ export function useRemoteCounters(fetcher: Fetcher): useRemoteCountersResult {
 
   const removeCounter = async (id: string) => {
     try {
+      if (id === "") {
+        return;
+      }
       mutate(
         counters.filter((c) => c.id !== id),
         false
@@ -89,6 +95,9 @@ export function useRemoteCounters(fetcher: Fetcher): useRemoteCountersResult {
 
   const editCounter = async (id: string, fields: CounterFields) => {
     try {
+      if (id === "") {
+        return;
+      }
       mutate(
         counters.map((counter) => {
           if (counter.id === id) {
@@ -118,6 +127,9 @@ export function useRemoteCounters(fetcher: Fetcher): useRemoteCountersResult {
   };
 
   const countUp = async (id: string) => {
+    if (id === "") {
+      return;
+    }
     const target = counters.find((c) => c.id === id);
     if (!target) {
       return;
@@ -155,6 +167,9 @@ export function useRemoteCounters(fetcher: Fetcher): useRemoteCountersResult {
   };
 
   const countDown = async (id: string) => {
+    if (id === "") {
+      return;
+    }
     const target = counters.find((c) => c.id === id);
     if (!target) {
       return;
@@ -192,6 +207,9 @@ export function useRemoteCounters(fetcher: Fetcher): useRemoteCountersResult {
   };
 
   const resetCount = async (id: string) => {
+    if (id === "") {
+      return;
+    }
     const target = counters.find((c) => c.id === id);
     if (!target) {
       return;
@@ -249,7 +267,7 @@ export function useLocalCounters(): useLocalCountersResult {
 
   const addCounter = async (counter: Counter) => {
     try {
-      setCounters((counters) => [...counters, counter]);
+      setCounters((counters) => [...counters, { ...counter, id: uuid() }]);
     } catch (error) {
       setErrorAndClear(
         { message: "カウンターの追加でエラーが発生しました。" },

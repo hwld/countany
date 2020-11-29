@@ -32,6 +32,7 @@ const Home: NextPage<{ className?: string }> = ({ className }) => {
     resetCount,
   }: useCountersResult = session ? remote : local;
 
+  // ログイン時にlocalのカウンターをremoteに追加する
   useEffect(() => {
     const moveLocalToRemote = async () => {
       // 先にclearして、promiseが解決していないときにレンダリングされても正しく動くようにする
