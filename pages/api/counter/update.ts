@@ -6,7 +6,6 @@ import { validateCounter } from "../../../util/validator";
 
 const updateHandler: NextApiHandler = async (req, res) => {
   const counter: Counter = req.body;
-  console.log(counter);
 
   const session = await getSession({ req });
   if (!session) {
