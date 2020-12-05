@@ -10,7 +10,7 @@ const countersHandler: NextApiHandler = async (req, res) => {
     return;
   }
 
-  res.json({});
+  res.json([]);
 };
 
 export default countersHandler;
