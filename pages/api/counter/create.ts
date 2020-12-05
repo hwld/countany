@@ -1,9 +1,7 @@
 import { NextApiHandler } from "next";
 import { getSession } from "next-auth/client";
-import prisma from "../../../prisma";
 import { Counter } from "../../../types/client";
 import { validateCounter } from "../../../util/validator";
-import { v4 as uuid } from "uuid";
 
 const createHandler: NextApiHandler = async (req, res) => {
   const counter: Counter = req.body;
@@ -21,19 +19,7 @@ const createHandler: NextApiHandler = async (req, res) => {
     return;
   }
 
-  const createdCounter = await prisma.counter.create({
-    data: {
-      id: uuid(),
-      value: counter.value,
-      name: counter.name,
-      startWith: counter.startWith,
-      amount: counter.amount,
-      maxValue: counter.maxValue,
-      minValue: counter.minValue,
-      user: { connect: { email: session.user.email } },
-    },
-  });
-  res.json(createdCounter);
+  res.json({});
 };
 
 export default createHandler;

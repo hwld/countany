@@ -1,8 +1,6 @@
 import { NextApiHandler } from "next";
 import NextAuth, { InitOptions } from "next-auth";
-import Adapters from "next-auth/adapters";
 import Providers from "next-auth/providers";
-import prisma from "../../../prisma";
 
 const options: InitOptions = {
   providers: [
@@ -11,7 +9,7 @@ const options: InitOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
     }),
   ],
-  adapter: Adapters.Prisma.Adapter({ prisma }),
+  database: process.env.DATABASE_URL || "",
 };
 
 const authHandler: NextApiHandler = (req, res) => NextAuth(req, res, options);
