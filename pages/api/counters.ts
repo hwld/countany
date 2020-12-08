@@ -1,29 +1,36 @@
 import { NextApiHandler } from "next";
 import { getSession } from "next-auth/client";
-import prisma from "../../prisma";
+import { CounterModel } from "../../models/counter";
+import { UserModel } from "../../models/user";
+import { Counter } from "../../types/client";
+import { connect } from "../../util/mongodb";
 
 const countersHandler: NextApiHandler = async (req, res) => {
-  // ユーザ情報は返さない
   const session = await getSession({ req });
   if (!session) {
+    return res.json([]);
+  }
+
+  await connect();
+
+  const user = await UserModel.findOne({ email: session.user.email });
+  if (!user) {
     res.statusCode = 403;
-    res.end("セッションが存在しません。");
+    res.end("ユーザが存在しません。");
     return;
   }
 
-  const counters = await prisma.counter.findMany({
-    where: { user: { email: session.user.email } },
-    select: {
-      id: true,
-      value: true,
-      name: true,
-      startWith: true,
-      amount: true,
-      maxValue: true,
-      minValue: true,
-    },
-    orderBy: { createdAt: "asc" },
-  });
+  const counters: Counter[] = (
+    await CounterModel.find({ userId: user.id })
+  ).map((doc) => ({
+    id: doc.id,
+    value: doc.value,
+    name: doc.name,
+    startWith: doc.startWith,
+    amount: doc.amount,
+    maxValue: doc.maxValue,
+    minValue: doc.minValue,
+  }));
 
   res.json(counters);
 };

@@ -45,7 +45,6 @@ export function useRemoteCounters(fetcher: Fetcher): useRemoteCountersResult {
   const addCounter = async (counter: Counter) => {
     try {
       const newCounter = { ...counter, id: "" };
-      // mutate([...counters, newCounter], false);
       await fetcher("/api/counter/create", newCounter);
       mutate();
     } catch (error) {
@@ -60,9 +59,7 @@ export function useRemoteCounters(fetcher: Fetcher): useRemoteCountersResult {
   const addCounters = async (counters: Counter[]) => {
     try {
       const newCounters = counters.map((c) => ({ ...c, id: "" }));
-      mutate([...counters, ...newCounters], false);
       await fetcher("/api/counters/bulk_create", newCounters);
-      //ここでidがセットされたcountersが反映される
       mutate();
     } catch (error) {
       mutate([...counters], false);
