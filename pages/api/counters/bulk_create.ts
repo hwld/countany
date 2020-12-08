@@ -8,16 +8,22 @@ import { validateCounter } from "../../../util/validator";
 
 const bulkCreateHandler: NextApiHandler = async (req, res) => {
   const counters: Counter[] = req.body;
-
   const session = await getSession({ req });
+  const email = session?.user.email;
+
   if (!session) {
     res.statusCode = 403;
     res.end("セッションが存在しません。");
     return;
   }
+  if (!email) {
+    res.statusCode = 403;
+    res.end("メールアドレスが存在しません");
+    return;
+  }
 
   await connect();
-  const user = await UserModel.findOne({ email: session.user.email });
+  const user = await UserModel.findOne({ email: email });
   if (!user) {
     res.statusCode = 403;
     res.end("ユーザが存在しません。");

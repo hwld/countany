@@ -7,13 +7,18 @@ import { connect } from "../../util/mongodb";
 
 const countersHandler: NextApiHandler = async (req, res) => {
   const session = await getSession({ req });
+  const email = session?.user.email;
+
   if (!session) {
+    return res.json([]);
+  }
+  if (!email) {
     return res.json([]);
   }
 
   await connect();
 
-  const user = await UserModel.findOne({ email: session.user.email });
+  const user = await UserModel.findOne({ email: email });
   if (!user) {
     res.statusCode = 403;
     res.end("ユーザが存在しません。");
