@@ -20,7 +20,7 @@ const Component: React.FC<Props> = ({ user, onLogout, className }) => {
   return (
     <div className={className}>
       <button onClick={open}>
-        <img src={user.image} />
+        <img src={user.image || ""} />
       </button>
       <Menu
         anchorEl={anchorEl}
