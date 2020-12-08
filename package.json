@@ -14,7 +14,6 @@
     "@material-ui/lab": "^4.0.0-alpha.56",
     "@material-ui/styles": "^4.10.0",
     "framer-motion": "^2.9.4",
-    "mongodb": "^3.6.3",
     "mongoose": "^5.11.4",
     "next": "9.5.5",
     "next-auth": "^3.1.0",
@@ -46,7 +45,7 @@
     "sqlite3": "^5.0.0",
     "typescript": "^4.0.3"
   },
-  "peerDependencies": {
+  "peerOptionalDependencies": {
     "mongodb": "^3.6.3"
   },
   "resolutions": {
