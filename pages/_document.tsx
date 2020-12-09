@@ -45,6 +45,10 @@ export default class MyDocument extends Document {
     return (
       <Html lang="ja-JP">
         <Head>
+          <meta
+            name="description"
+            content="複数作成可能なWebカウンターです。"
+          />
           <link rel="icon" href="/favicon.ico" />
         </Head>
         <body>
