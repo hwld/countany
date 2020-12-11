@@ -65,18 +65,6 @@ const Component: React.FC<Props> = ({
     onEditCounter(counter.id, fields);
   };
 
-  useEffect(() => {
-    controls.start({
-      scale: 1,
-      transition: {
-        type: "spring",
-        velocity: 30,
-        stiffness: 700,
-        damping: 50,
-      },
-    });
-  }, [controls, counter.value]);
-
   return (
     <div className={className}>
       <div className="head">
@@ -89,9 +77,7 @@ const Component: React.FC<Props> = ({
           <RemoveIcon />
         </IconButton>
       </div>
-      <motion.div animate={controls}>
-        <Typography className="counts">{counter.value}</Typography>
-      </motion.div>
+      <Typography className="counts">{counter.value}</Typography>
       <div className="counter">
         <Button onClick={countUp} className="countUp">
           <PlusIcon fontSize="large" />
@@ -139,7 +125,7 @@ const StyledComponent = styled(Component)`
     }
   }
 
-  & > div > .counts {
+  & > .counts {
     margin-top: 0px;
     font-size: 50px;
     text-align: center;
