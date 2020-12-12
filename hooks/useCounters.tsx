@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import useSWR from "swr";
 import { CounterFields } from "../components/Counter";
 import { Counter } from "../types/client";
@@ -34,6 +34,10 @@ export function useRemoteCounters(fetcher: Fetcher): useRemoteCountersResult {
     fetcher
   );
   const [error, setError] = useState<useCountersError>(null);
+
+  // counterIdとtimerIDを関連付ける。
+  // timerはカウントアップ、ダウン、リセット時にセットし、最終的なカウンターの結果のみを送信する。
+  const timerIdMap = useRef(new Map<string, number>());
 
   const setErrorAndClear = (error: useCountersError, clearTimeout: number) => {
     setError(error);
@@ -75,6 +79,7 @@ export function useRemoteCounters(fetcher: Fetcher): useRemoteCountersResult {
       if (id === "") {
         return;
       }
+      timerIdMap.current.delete(id);
       mutate(
         counters.filter((c) => c.id !== id),
         false
@@ -149,11 +154,16 @@ export function useRemoteCounters(fetcher: Fetcher): useRemoteCountersResult {
         }),
         false
       );
-      await fetcher("/api/counter/update", {
-        ...target,
-        value: target.value + target.amount,
-      });
-      mutate();
+
+      let timerId = timerIdMap.current.get(target.id);
+      clearTimeout(timerId);
+      timerId = setTimeout(() => {
+        fetcher("/api/counter/update", {
+          ...target,
+          value: target.value + target.amount,
+        });
+      }, 300);
+      timerIdMap.current.set(target.id, timerId);
     } catch (error) {
       mutate([...counters], false);
       setErrorAndClear(
@@ -189,11 +199,16 @@ export function useRemoteCounters(fetcher: Fetcher): useRemoteCountersResult {
         }),
         false
       );
-      await fetcher("/api/counter/update", {
-        ...target,
-        value: target.value - target.amount,
-      });
-      mutate();
+
+      let timerId = timerIdMap.current.get(target.id);
+      clearTimeout(timerId);
+      timerId = setTimeout(() => {
+        fetcher("/api/counter/update", {
+          ...target,
+          value: target.value - target.amount,
+        });
+      }, 300);
+      timerIdMap.current.set(target.id, timerId);
     } catch (error) {
       mutate([...counters], false);
       setErrorAndClear(
@@ -226,8 +241,13 @@ export function useRemoteCounters(fetcher: Fetcher): useRemoteCountersResult {
         }),
         false
       );
-      await fetcher("/api/counter/update", { ...target, value: 0 });
-      mutate();
+
+      let timerId = timerIdMap.current.get(target.id);
+      clearTimeout(timerId);
+      timerId = setTimeout(() => {
+        fetcher("/api/counter/update", { ...target, value: 0 });
+      }, 500);
+      timerIdMap.current.set(target.id, timerId);
     } catch (error) {
       mutate([...counters], false);
       setErrorAndClear(
