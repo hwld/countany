@@ -17,7 +17,7 @@ export const model = <T extends Document>(
   ...args: Parameters<typeof mongoModel>
 ): Model<T> => {
   try {
-    // modelが存在しなければthrowする
+    // modelが存在すればそれを返す
     return mongoModel(args[0]);
   } catch {
     return mongoModel(...args);

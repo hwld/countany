@@ -1,8 +1,7 @@
 import { NextApiHandler } from "next";
 import { getSession } from "next-auth/client";
-import { CounterModel } from "../../models/counter";
+import { Counter, CounterModel } from "../../models/counter";
 import { UserModel } from "../../models/user";
-import { Counter } from "../../types/client";
 import { connect } from "../../util/mongodb";
 
 const countersHandler: NextApiHandler = async (req, res) => {

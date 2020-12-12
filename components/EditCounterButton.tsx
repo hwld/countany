@@ -10,11 +10,11 @@ import {
 } from "@material-ui/core";
 import { CounterSettingForm } from "./CounterSettingForm";
 import { SlideTransition } from "./SlideTransition";
-import { CounterFields, CounterObj } from "./Counter";
+import { Counter, CounterFields } from "../models/counter";
 
 type Props = {
   className?: string;
-  counter: CounterObj;
+  counter: Counter;
   editCounter: (fields: CounterFields) => void;
 };
 

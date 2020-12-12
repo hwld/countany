@@ -1,4 +1,4 @@
-import { Counter } from "../types/client";
+import { Counter } from "../models/counter";
 
 export const validateCounter = (counter: Counter): boolean => {
   return (

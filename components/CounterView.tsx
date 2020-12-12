@@ -8,13 +8,12 @@ import {
   useLocalCounters,
   useRemoteCounters,
 } from "../hooks/useCounters";
-import { fetcher } from "../util/fetcher";
 import { AddCounterButton } from "./AddCounterButton";
 import { Counter } from "./Counter";
 
 const Component: React.FC<{ className?: string }> = ({ className }) => {
   const session = Boolean(useSession()[0]);
-  const remote = useRemoteCounters(fetcher);
+  const remote = useRemoteCounters();
   const local = useLocalCounters();
   const {
     counters,

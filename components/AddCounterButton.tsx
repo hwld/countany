@@ -12,8 +12,7 @@ import {
 import AddIcon from "@material-ui/icons/Add";
 import { CounterSettingForm } from "./CounterSettingForm";
 import { SlideTransition } from "./SlideTransition";
-import { CounterFields } from "./Counter";
-import { Counter } from "../types/client";
+import { Counter, CounterFields } from "../models/counter";
 
 type Props = {
   className?: string;

@@ -1,33 +1,19 @@
 import { Button, IconButton, Typography } from "@material-ui/core";
-import React, { useEffect } from "react";
+import React from "react";
 import styled from "styled-components";
 import PlusIcon from "@material-ui/icons/Add";
 import MinusIcon from "@material-ui/icons/Remove";
 import ResetIcon from "@material-ui/icons/Refresh";
 import RemoveIcon from "@material-ui/icons/Clear";
 import { EditCounterButton } from "./EditCounterButton";
-import { motion, useAnimation } from "framer-motion";
-
-// 変更可能なフィールド
-export type CounterFields = {
-  name: string;
-  startWith: number;
-  amount: number; //変化量
-  maxValue: number;
-  minValue: number;
-};
-
-export type CounterObj = {
-  id: string;
-  value: number;
-} & CounterFields;
+import { Counter as CounterObj, CounterFields } from "../models/counter";
 
 export const COUNTER_MAX_LENGTH = 9;
 
 type Props = {
   className?: string;
   counter: CounterObj;
-  onEditCounter: (id: string, fields: CounterFields) => void;
+  onEditCounter: (counter: CounterObj) => void;
   onRemoveCounter: (id: string) => void;
   onCountUp: (id: string) => void;
   onCountDown: (id: string) => void;
@@ -43,8 +29,6 @@ const Component: React.FC<Props> = ({
   onCountDown,
   onResetCount,
 }) => {
-  const controls = useAnimation();
-
   const countUp = () => {
     onCountUp(counter.id);
   };
@@ -62,7 +46,7 @@ const Component: React.FC<Props> = ({
   };
 
   const editCounter = (fields: CounterFields) => {
-    onEditCounter(counter.id, fields);
+    onEditCounter({ ...counter, ...fields });
   };
 
   return (

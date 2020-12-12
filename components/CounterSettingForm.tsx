@@ -2,12 +2,13 @@ import { TextField, Typography } from "@material-ui/core";
 import React from "react";
 import { useForm } from "react-hook-form";
 import styled from "styled-components";
-import { CounterFields, CounterObj, COUNTER_MAX_LENGTH } from "./Counter";
+import { Counter, CounterFields } from "../models/counter";
+import { COUNTER_MAX_LENGTH } from "./Counter";
 
 type Props = {
   id: string;
   className?: string;
-  counter?: CounterObj;
+  counter?: Counter;
   onSubmit?: (fields: CounterFields) => void;
 };
 

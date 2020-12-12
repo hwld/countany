@@ -1,8 +1,11 @@
 import { NextApiHandler } from "next";
 import { getSession } from "next-auth/client";
-import { CounterModel, CounterObj } from "../../../models/counter";
+import {
+  Counter,
+  CounterModel,
+  CounterModelObj,
+} from "../../../models/counter";
 import { UserModel } from "../../../models/user";
-import { Counter } from "../../../types/client";
 import { connect } from "../../../util/mongodb";
 import { validateCounter } from "../../../util/validator";
 
@@ -37,7 +40,7 @@ const createHandler: NextApiHandler = async (req, res) => {
     return;
   }
 
-  const newCounter: CounterObj = {
+  const newCounter: CounterModelObj = {
     value: counter.value,
     name: counter.name,
     startWith: counter.startWith,
