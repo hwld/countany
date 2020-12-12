@@ -80,9 +80,11 @@ const Component: React.FC<{ className?: string }> = ({ className }) => {
 };
 
 const StyledComponent = styled(Component)`
+  margin-bottom: 100px;
+
   & > .counterAlert {
-    position: sticky;
-    top: 70px;
+    position: fixed;
+    top: 55px;
     height: 50px;
     width: 100%;
     z-index: 1;
@@ -94,7 +96,7 @@ const StyledComponent = styled(Component)`
   }
 
   & > .counterContainer {
-    margin-top: 35px;
+    margin-top: 30px;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -105,8 +107,10 @@ const StyledComponent = styled(Component)`
 
   & > .addCounter {
     position: absolute;
-    right: 40px;
-    bottom: 40px;
+    width: 56px;
+    height: 56px;
+    right: 20px;
+    bottom: 20px;
   }
 `;
 
