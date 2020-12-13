@@ -42,6 +42,7 @@ const bulkCreateHandler: NextApiHandler = async (req, res) => {
 
     const newCounter: CounterModelObj = {
       value: counter.value,
+      listKey: counter.listKey,
       name: counter.name,
       startWith: counter.startWith,
       amount: counter.amount,

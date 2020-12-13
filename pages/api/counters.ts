@@ -29,6 +29,7 @@ const countersHandler: NextApiHandler = async (req, res) => {
   ).map((doc) => ({
     id: doc.id,
     value: doc.value,
+    listKey: doc.listKey,
     name: doc.name,
     startWith: doc.startWith,
     amount: doc.amount,

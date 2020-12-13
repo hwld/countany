@@ -13,6 +13,7 @@ import AddIcon from "@material-ui/icons/Add";
 import { CounterSettingForm } from "./CounterSettingForm";
 import { SlideTransition } from "./SlideTransition";
 import { Counter, CounterFields } from "../models/counter";
+import { v4 as uuid } from "uuid";
 
 type Props = {
   className?: string;
@@ -31,7 +32,12 @@ const Component: React.FC<Props> = ({ className, onAddCounter }) => {
   };
 
   const handleSubmit = (fields: CounterFields) => {
-    onAddCounter({ id: "", value: fields.startWith, ...fields });
+    onAddCounter({
+      id: "",
+      listKey: uuid(),
+      value: fields.startWith,
+      ...fields,
+    });
     setIsOpen(false);
   };
 

@@ -49,6 +49,7 @@ export function useRemoteCounters(): useRemoteCountersResult {
 
   const addCounter = async (counter: Counter) => {
     try {
+      mutate([...counters, counter]);
       await postCreateCounter({ ...counter });
       mutate();
     } catch (error) {
@@ -59,6 +60,7 @@ export function useRemoteCounters(): useRemoteCountersResult {
 
   const addCounters = async (newCounters: Counter[]) => {
     try {
+      mutate([...counters, ...newCounters]);
       await postBulkCreateCounters(newCounters);
       mutate();
     } catch (error) {

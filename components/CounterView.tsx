@@ -52,7 +52,7 @@ const Component: React.FC<{ className?: string }> = ({ className }) => {
         <AnimatePresence>
           {counters.map((counter) => (
             <motion.div
-              key={counter.id}
+              key={counter.listKey}
               layout
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -60,7 +60,6 @@ const Component: React.FC<{ className?: string }> = ({ className }) => {
               transition={{ duration: 0.2 }}
             >
               <Counter
-                key={counter.id}
                 className="counter"
                 counter={counter}
                 onEditCounter={editCounter}
