@@ -29,7 +29,7 @@ export const postCreateCounter = (counter: Counter): Promise<Response> =>
 
 export const postBulkCreateCounters = (
   counters: Counter[]
-): Promise<Response> => post("/api/counter/bulk_create", counters);
+): Promise<Response> => post("/api/counters/bulk_create", counters);
 
 export const postRemoveCounter = (id: string): Promise<Response> =>
   post("/api/counter/delete", { id });
