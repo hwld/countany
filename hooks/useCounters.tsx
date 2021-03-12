@@ -22,6 +22,7 @@ export type useCountersResult = {
 };
 
 type useRemoteCountersResult = useCountersResult & {
+  isLoading: boolean;
   addCounters: (counters: Counter[]) => Promise<void>;
 };
 
@@ -33,7 +34,10 @@ type useCountersError = null | { message: string };
 
 // web apiを使用したバージョン
 export function useRemoteCounters(): useRemoteCountersResult {
-  const { data: counters = [], mutate } = useFetchCounter();
+  const { data, mutate } = useFetchCounter();
+  const counters: Counter[] = data ?? [];
+  const isLoading = data === undefined ? true : false;
+
   const [error, setError] = useState<useCountersError>(null);
 
   // counterIdとtimerIDを関連付ける。
@@ -243,6 +247,7 @@ export function useRemoteCounters(): useRemoteCountersResult {
 
   return {
     counters,
+    isLoading,
     error,
     addCounter,
     removeCounter,

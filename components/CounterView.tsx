@@ -33,11 +33,11 @@ const Component: React.FC<{ className?: string }> = ({ className }) => {
       local.clearCounters();
       await remote.addCounters(local.counters);
     };
-    if (session && local.counters.length > 0) {
+    if (session && local.counters.length > 0 && !remote.isLoading) {
       moveLocalToRemote();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session]);
+  }, [session, remote.isLoading]);
 
   return (
     <div className={className}>
