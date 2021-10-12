@@ -28,10 +28,10 @@ const Component: React.FC<Props> = ({
   } = useForm<Record<keyof CounterFields, string>>({
     defaultValues: {
       name: counter?.name,
-      startWith: `${counter?.startWith || 0}`,
-      amount: `${counter?.amount || 1}`,
-      maxValue: `${counter?.maxValue || 999999999}`,
-      minValue: `${counter?.minValue || -999999999}`,
+      startWith: `${counter ? counter.startWith : 0}`,
+      amount: `${counter ? counter.amount : 1}`,
+      maxValue: `${counter ? counter.maxValue : 999999999}`,
+      minValue: `${counter ? counter.minValue : -999999999}`,
     },
   });
 
